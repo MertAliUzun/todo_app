@@ -531,6 +531,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  safe_int_id:
+    dependency: "direct main"
+    description:
+      name: safe_int_id
+      sha256: af220613c1a03ca580339e376ad4e5ecb0e496ca62c6f7642a0a60421b76ea73
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   shelf:
     dependency: transitive
     description:

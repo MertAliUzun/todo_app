@@ -1,6 +1,7 @@
 
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safe_int_id/safe_int_id.dart';
 import 'package:todo_app/domain/models/todo.dart';
 import 'package:todo_app/domain/repository/todo_repo.dart';
 import 'package:uuid/uuid.dart';
@@ -25,7 +26,8 @@ class TodoCubit extends Cubit<List<Todo>> {
     /*var uuid = const Uuid();
     String id = uuid.v4();
     */
-    final newTodo = Todo(id: DateTime.now().millisecondsSinceEpoch, text: text);
+    final id = safeIntId.getId();
+    final newTodo = Todo(id: id, text: text); //DateTime.now().millisecondsSinceEpoch
 
     //save to db
     await todoRepo.addTodo(newTodo);
