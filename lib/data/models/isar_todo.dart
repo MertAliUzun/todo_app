@@ -8,12 +8,14 @@ class TodoIsar {
   Id id = Isar.autoIncrement;
   late String text;
   late bool isCompleted;
+  late String completionState;
 
   Todo toDomain() {
     return Todo(
       id: id,
       text: text,
       isCompleted: isCompleted,
+      completionState: completionState,
     );
   }
 
@@ -21,6 +23,7 @@ class TodoIsar {
     return TodoIsar()
       ..id = todo.id
       ..text = todo.text
-      ..isCompleted = todo.isCompleted;
+      ..isCompleted = todo.isCompleted
+      ..completionState = todo.completionState;
   }
 }

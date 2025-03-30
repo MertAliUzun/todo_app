@@ -20,6 +20,40 @@ class IsarTodoRepo implements TodoRepo {
   }
 
   @override
+  Future<List<Todo>> getStateTodo() async {
+    final todos = await db.todoIsars
+        .where()
+        .filter()
+        .completionStateEqualTo('todo')
+        .findAll();
+
+    return todos.map((todoIsar) => todoIsar.toDomain()).toList();
+  }
+
+  @override
+  Future<List<Todo>> getStateInProgress() async {
+    final todos = await db.todoIsars
+        .where()
+        .filter()
+        .completionStateEqualTo('inProgress')
+        .findAll();
+
+    return todos.map((todoIsar) => todoIsar.toDomain()).toList();
+  }
+
+  @override
+  Future<List<Todo>> getStateDone() async {
+    final todos = await db.todoIsars
+        .where()
+        .filter()
+        .completionStateEqualTo('done')
+        .findAll();
+
+    return todos.map((todoIsar) => todoIsar.toDomain()).toList();
+  }
+
+
+  @override
   Future<void> addTodo(Todo newTodo) async {
     //convert todo into isar todo
     final todoIsar = TodoIsar.fromDomain(newTodo);

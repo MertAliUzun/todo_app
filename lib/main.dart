@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:todo_app/data/models/isar_todo.dart';
 import 'package:todo_app/data/repository/isar_todo_repo.dart';
 import 'package:todo_app/domain/repository/todo_repo.dart';
+import 'package:todo_app/presentation/todo_cubit.dart';
 import 'package:todo_app/presentation/todo_page.dart';
 
 void main() async {
@@ -17,7 +19,7 @@ void main() async {
   final isarTodoRepo = IsarTodoRepo(isar);
 
   //run app
-  runApp(MyApp(todoRepo: isarTodoRepo,));
+  runApp(MyApp(todoRepo: isarTodoRepo));
 }
 
 class MyApp extends StatelessWidget {
@@ -27,8 +29,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: TodoPage(todoRepo: todoRepo),
+    return BlocProvider(
+      create: (context) => TodoCubit(todoRepo),
+      child: MaterialApp(
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          useMaterial3: true,
+        ),
+        home: const TodoPage(),
+      ),
     );
   }
 }

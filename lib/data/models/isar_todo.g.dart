@@ -17,13 +17,18 @@ const TodoIsarSchema = CollectionSchema(
   name: r'TodoIsar',
   id: -495579864114062347,
   properties: {
-    r'isCompleted': PropertySchema(
+    r'completionState': PropertySchema(
       id: 0,
+      name: r'completionState',
+      type: IsarType.string,
+    ),
+    r'isCompleted': PropertySchema(
+      id: 1,
       name: r'isCompleted',
       type: IsarType.bool,
     ),
     r'text': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'text',
       type: IsarType.string,
     )
@@ -48,6 +53,7 @@ int _todoIsarEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.completionState.length * 3;
   bytesCount += 3 + object.text.length * 3;
   return bytesCount;
 }
@@ -58,8 +64,9 @@ void _todoIsarSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeBool(offsets[0], object.isCompleted);
-  writer.writeString(offsets[1], object.text);
+  writer.writeString(offsets[0], object.completionState);
+  writer.writeBool(offsets[1], object.isCompleted);
+  writer.writeString(offsets[2], object.text);
 }
 
 TodoIsar _todoIsarDeserialize(
@@ -69,9 +76,10 @@ TodoIsar _todoIsarDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = TodoIsar();
+  object.completionState = reader.readString(offsets[0]);
   object.id = id;
-  object.isCompleted = reader.readBool(offsets[0]);
-  object.text = reader.readString(offsets[1]);
+  object.isCompleted = reader.readBool(offsets[1]);
+  object.text = reader.readString(offsets[2]);
   return object;
 }
 
@@ -83,8 +91,10 @@ P _todoIsarDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
+      return (reader.readBool(offset)) as P;
+    case 2:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -180,6 +190,142 @@ extension TodoIsarQueryWhere on QueryBuilder<TodoIsar, TodoIsar, QWhereClause> {
 
 extension TodoIsarQueryFilter
     on QueryBuilder<TodoIsar, TodoIsar, QFilterCondition> {
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'completionState',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'completionState',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'completionState',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'completionState',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'completionState',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'completionState',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'completionState',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'completionState',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'completionState',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      completionStateIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'completionState',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -380,6 +526,18 @@ extension TodoIsarQueryLinks
     on QueryBuilder<TodoIsar, TodoIsar, QFilterCondition> {}
 
 extension TodoIsarQuerySortBy on QueryBuilder<TodoIsar, TodoIsar, QSortBy> {
+  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByCompletionState() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completionState', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByCompletionStateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completionState', Sort.desc);
+    });
+  }
+
   QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByIsCompleted() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isCompleted', Sort.asc);
@@ -407,6 +565,18 @@ extension TodoIsarQuerySortBy on QueryBuilder<TodoIsar, TodoIsar, QSortBy> {
 
 extension TodoIsarQuerySortThenBy
     on QueryBuilder<TodoIsar, TodoIsar, QSortThenBy> {
+  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenByCompletionState() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completionState', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenByCompletionStateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completionState', Sort.desc);
+    });
+  }
+
   QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -446,6 +616,14 @@ extension TodoIsarQuerySortThenBy
 
 extension TodoIsarQueryWhereDistinct
     on QueryBuilder<TodoIsar, TodoIsar, QDistinct> {
+  QueryBuilder<TodoIsar, TodoIsar, QDistinct> distinctByCompletionState(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'completionState',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<TodoIsar, TodoIsar, QDistinct> distinctByIsCompleted() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isCompleted');
@@ -465,6 +643,12 @@ extension TodoIsarQueryProperty
   QueryBuilder<TodoIsar, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<TodoIsar, String, QQueryOperations> completionStateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'completionState');
     });
   }
 
