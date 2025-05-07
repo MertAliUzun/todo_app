@@ -51,13 +51,6 @@ class TodoCubit extends Cubit<List<Todo>> {
     loadTodos();
   }
 
-  Future<void> toogleCompletion(Todo todo) async {
-    //toggle selected todo
-    final updatedTodo = todo.toogleCompletion();
-    await todoRepo.updateTodo(updatedTodo);
-    loadTodos();
-  }
-
   Future<void> updateTodoState(Todo todo, int targetIndex) async {
     Todo updatedTodo;
     switch (targetIndex) {

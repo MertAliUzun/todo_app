@@ -22,13 +22,8 @@ const TodoIsarSchema = CollectionSchema(
       name: r'completionState',
       type: IsarType.string,
     ),
-    r'isCompleted': PropertySchema(
-      id: 1,
-      name: r'isCompleted',
-      type: IsarType.bool,
-    ),
     r'text': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'text',
       type: IsarType.string,
     )
@@ -65,8 +60,7 @@ void _todoIsarSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.completionState);
-  writer.writeBool(offsets[1], object.isCompleted);
-  writer.writeString(offsets[2], object.text);
+  writer.writeString(offsets[1], object.text);
 }
 
 TodoIsar _todoIsarDeserialize(
@@ -78,8 +72,7 @@ TodoIsar _todoIsarDeserialize(
   final object = TodoIsar();
   object.completionState = reader.readString(offsets[0]);
   object.id = id;
-  object.isCompleted = reader.readBool(offsets[1]);
-  object.text = reader.readString(offsets[2]);
+  object.text = reader.readString(offsets[1]);
   return object;
 }
 
@@ -93,8 +86,6 @@ P _todoIsarDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readBool(offset)) as P;
-    case 2:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -378,16 +369,6 @@ extension TodoIsarQueryFilter
     });
   }
 
-  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> isCompletedEqualTo(
-      bool value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'isCompleted',
-        value: value,
-      ));
-    });
-  }
-
   QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> textEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -538,18 +519,6 @@ extension TodoIsarQuerySortBy on QueryBuilder<TodoIsar, TodoIsar, QSortBy> {
     });
   }
 
-  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByIsCompleted() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isCompleted', Sort.asc);
-    });
-  }
-
-  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByIsCompletedDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isCompleted', Sort.desc);
-    });
-  }
-
   QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByText() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'text', Sort.asc);
@@ -589,18 +558,6 @@ extension TodoIsarQuerySortThenBy
     });
   }
 
-  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenByIsCompleted() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isCompleted', Sort.asc);
-    });
-  }
-
-  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenByIsCompletedDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isCompleted', Sort.desc);
-    });
-  }
-
   QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenByText() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'text', Sort.asc);
@@ -624,12 +581,6 @@ extension TodoIsarQueryWhereDistinct
     });
   }
 
-  QueryBuilder<TodoIsar, TodoIsar, QDistinct> distinctByIsCompleted() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'isCompleted');
-    });
-  }
-
   QueryBuilder<TodoIsar, TodoIsar, QDistinct> distinctByText(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -649,12 +600,6 @@ extension TodoIsarQueryProperty
   QueryBuilder<TodoIsar, String, QQueryOperations> completionStateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'completionState');
-    });
-  }
-
-  QueryBuilder<TodoIsar, bool, QQueryOperations> isCompletedProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'isCompleted');
     });
   }
 

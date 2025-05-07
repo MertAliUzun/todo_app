@@ -72,10 +72,6 @@ class TodoView extends StatelessWidget {
                     childWhenDragging: Container(),
                     child: ListTile(
                       title: Text(todo.text),
-                      leading: Checkbox(
-                        value: todo.isCompleted,
-                        onChanged: (value) => todoCubit.toogleCompletion(todo),
-                      ),
                       trailing: IconButton(
                         icon: const Icon(Icons.cancel),
                         onPressed: () => todoCubit.deleteTodo(todo),
