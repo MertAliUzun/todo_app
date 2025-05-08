@@ -173,6 +173,26 @@ class ExpandableTodoTile extends StatefulWidget {
 class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
   bool _isExpanded = false;
 
+  String _formatDate(DateTime dateTime) {
+    // Türkçe ay adları
+    const Map<int, String> motnhs = {
+      1: 'Jan',
+      2: 'Feb',
+      3: 'Mar',
+      4: 'Apr',
+      5: 'May',
+      6: 'Jun',
+      7: 'Jul',
+      8: 'Agu',
+      9: 'Sep',
+      10: 'Oct',
+      11: 'Nov',
+      12: 'Dec',
+    };
+    
+    return '${dateTime.day.toString().padLeft(2, '0')} ${motnhs[dateTime.month]} ${dateTime.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -187,18 +207,34 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
         children: [
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            leading: Icon(
-              Icons.drag_indicator,
-              color: Colors.grey[500],
-            ),
-            title: Text(
-              widget.todo.text,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 24,
+            leading: Container(
+              child: Icon(
+                Icons.drag_indicator,
+                color: Colors.grey[500],
+                size: 35,
               ),
-              maxLines: _isExpanded ? null : 1,
-              overflow: _isExpanded ? null : TextOverflow.ellipsis,
+            ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _formatDate(widget.todo.createdAt),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                Text(
+                  widget.todo.text,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 24,
+                  ),
+                  maxLines: _isExpanded ? null : 1,
+                  overflow: _isExpanded ? null : TextOverflow.ellipsis,
+                ),
+              ],
             ),
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),

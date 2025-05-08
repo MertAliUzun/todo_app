@@ -22,8 +22,13 @@ const TodoIsarSchema = CollectionSchema(
       name: r'completionState',
       type: IsarType.string,
     ),
-    r'text': PropertySchema(
+    r'createdAt': PropertySchema(
       id: 1,
+      name: r'createdAt',
+      type: IsarType.dateTime,
+    ),
+    r'text': PropertySchema(
+      id: 2,
       name: r'text',
       type: IsarType.string,
     )
@@ -60,7 +65,8 @@ void _todoIsarSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.completionState);
-  writer.writeString(offsets[1], object.text);
+  writer.writeDateTime(offsets[1], object.createdAt);
+  writer.writeString(offsets[2], object.text);
 }
 
 TodoIsar _todoIsarDeserialize(
@@ -71,8 +77,9 @@ TodoIsar _todoIsarDeserialize(
 ) {
   final object = TodoIsar();
   object.completionState = reader.readString(offsets[0]);
+  object.createdAt = reader.readDateTime(offsets[1]);
   object.id = id;
-  object.text = reader.readString(offsets[1]);
+  object.text = reader.readString(offsets[2]);
   return object;
 }
 
@@ -86,6 +93,8 @@ P _todoIsarDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
+      return (reader.readDateTime(offset)) as P;
+    case 2:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -317,6 +326,59 @@ extension TodoIsarQueryFilter
     });
   }
 
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> createdAtEqualTo(
+      DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'createdAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> createdAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'createdAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> createdAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'createdAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> createdAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'createdAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -519,6 +581,18 @@ extension TodoIsarQuerySortBy on QueryBuilder<TodoIsar, TodoIsar, QSortBy> {
     });
   }
 
+  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByCreatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> sortByText() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'text', Sort.asc);
@@ -543,6 +617,18 @@ extension TodoIsarQuerySortThenBy
   QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenByCompletionStateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'completionState', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterSortBy> thenByCreatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'createdAt', Sort.desc);
     });
   }
 
@@ -581,6 +667,12 @@ extension TodoIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<TodoIsar, TodoIsar, QDistinct> distinctByCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'createdAt');
+    });
+  }
+
   QueryBuilder<TodoIsar, TodoIsar, QDistinct> distinctByText(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -600,6 +692,12 @@ extension TodoIsarQueryProperty
   QueryBuilder<TodoIsar, String, QQueryOperations> completionStateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'completionState');
+    });
+  }
+
+  QueryBuilder<TodoIsar, DateTime, QQueryOperations> createdAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'createdAt');
     });
   }
 

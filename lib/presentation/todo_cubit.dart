@@ -37,7 +37,7 @@ class TodoCubit extends Cubit<List<Todo>> {
   Future<void> addTodo(String text) async {
     //create a new todo with a unique id
     final id = safeIntId.getId();
-    final newTodo = Todo(id: id, text: text);  //DateTime.now().millisecondsSinceEpoch
+    final newTodo = Todo(id: id, text: text, createdAt: DateTime.now());  //DateTime.now().millisecondsSinceEpoch
     await todoRepo.addTodo(newTodo);
     //reload
 
