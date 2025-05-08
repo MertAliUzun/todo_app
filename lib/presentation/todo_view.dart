@@ -151,26 +151,89 @@ class TodoView extends StatelessWidget {
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Icon(
-          Icons.drag_indicator,
-          color: Colors.grey[500],
-        ),
-        title: Text(
-          todo.text,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 24,
+      child: ExpandableTodoTile(todo: todo, todoCubit: todoCubit),
+    );
+  }
+}
+
+class ExpandableTodoTile extends StatefulWidget {
+  final Todo todo;
+  final TodoCubit todoCubit;
+
+  const ExpandableTodoTile({
+    Key? key,
+    required this.todo,
+    required this.todoCubit,
+  }) : super(key: key);
+
+  @override
+  State<ExpandableTodoTile> createState() => _ExpandableTodoTileState();
+}
+
+class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        setState(() {
+          _isExpanded = !_isExpanded;
+        });
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: Icon(
+              Icons.drag_indicator,
+              color: Colors.grey[500],
+            ),
+            title: Text(
+              widget.todo.text,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 24,
+              ),
+              maxLines: _isExpanded ? null : 1,
+              overflow: _isExpanded ? null : TextOverflow.ellipsis,
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              onPressed: () => widget.todoCubit.deleteTodo(widget.todo),
+              tooltip: 'Sil',
+            ),
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-          onPressed: () => todoCubit.deleteTodo(todo),
-          tooltip: 'Sil',
-        ),
+          //Burada todo.text yerine subtaskleri göster
+          if (_isExpanded)
+            Padding(
+              padding: const EdgeInsets.only(left: 46, right: 16, bottom: 16),
+              child: Text(
+                'test',
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.4,
+                ),
+              ),
+            ),
+          if (_isExpanded)
+            Padding(
+              padding: const EdgeInsets.only(right: 16, bottom: 8),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'Daraltmak için tıklayın',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
