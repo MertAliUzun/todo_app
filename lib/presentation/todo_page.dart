@@ -38,7 +38,7 @@ class _TodoPageState extends State<TodoPage> {
           BottomNavigationBarItem(
             icon: DragTarget<Todo>(
               onAccept: (todo) {
-                todoCubit.updateTodoState(todo, 0);
+                todoCubit.updateTodoState(todo, 0); //uodate completion state to todo
               },
               builder: (context, candidateData, rejectedData) {
                 return Container(
@@ -57,7 +57,7 @@ class _TodoPageState extends State<TodoPage> {
           BottomNavigationBarItem(
             icon: DragTarget<Todo>(
               onAccept: (todo) {
-                todoCubit.updateTodoState(todo, 1);
+                todoCubit.updateTodoState(todo, 1); //uodate completion state to in progress
               },
               builder: (context, candidateData, rejectedData) {
                 return Container(
@@ -76,7 +76,7 @@ class _TodoPageState extends State<TodoPage> {
           BottomNavigationBarItem(
             icon: DragTarget<Todo>(
               onAccept: (todo) {
-                todoCubit.updateTodoState(todo, 2);
+                todoCubit.updateTodoState(todo, 2); //uodate completion state to done
               },
               builder: (context, candidateData, rejectedData) {
                 return Container(

@@ -15,18 +15,26 @@ class TodoView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: TextField(controller: textController),
+        title: const Text('Yeni Görev Ekle'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        content: TextField(
+          controller: textController,
+          decoration: const InputDecoration(
+            labelText: 'Görev',
+            border: OutlineInputBorder(),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: const Text('İptal'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               todoCubit.addTodo(textController.text);
               Navigator.of(context).pop();
             },
-            child: const Text('Add'),
+            child: const Text('Ekle'),
           ),
         ],
       ),
@@ -39,6 +47,8 @@ class TodoView extends StatelessWidget {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        elevation: 6,
         child: const Icon(Icons.add),
         onPressed: () => _showAddTodoBox(context),
       ),
@@ -49,40 +59,118 @@ class TodoView extends StatelessWidget {
         builder: (context, candidateData, rejectedData) {
           return BlocBuilder<TodoCubit, List<Todo>>(
             builder: (context, todos) {
-              return ListView.builder(
-                itemCount: todos.length,
-                itemBuilder: (context, index) {
-                  final todo = todos[index];
-                  return Draggable<Todo>(
-                    data: todo,
-                    feedback: Material(
-                      child: Container(
-                        width: 200,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(8),
+              return todos.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.task_alt,
+                          size: 80,
+                          color: Colors.grey[400],
                         ),
-                        child: Text(
-                          todo.text,
-                          style: const TextStyle(color: Colors.white),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Henüz görev yok',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey[600],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    childWhenDragging: Container(),
-                    child: ListTile(
-                      title: Text(todo.text),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.cancel),
-                        onPressed: () => todoCubit.deleteTodo(todo),
-                      ),
-                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: todos.length,
+                    itemBuilder: (context, index) {
+                      final todo = todos[index];
+                      return Draggable<Todo>(
+                        data: todo,
+                        feedback: Material(
+                          elevation: 8,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context).colorScheme.primary,
+                                  Theme.of(context).colorScheme.secondary,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              todo.text,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        childWhenDragging: Opacity(
+                          opacity: 0.3,
+                          child: _buildTodoCard(context, todo, todoCubit),
+                        ),
+                        child: _buildTodoCard(context, todo, todoCubit),
+                      );
+                    },
                   );
-                },
-              );
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildTodoCard(BuildContext context, Todo todo, TodoCubit todoCubit) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Icon(
+          Icons.drag_indicator,
+          color: Colors.grey[500],
+        ),
+        title: Text(
+          todo.text,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 24,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+          onPressed: () => todoCubit.deleteTodo(todo),
+          tooltip: 'Sil',
+        ),
       ),
     );
   }
