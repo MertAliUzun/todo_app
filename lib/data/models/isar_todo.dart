@@ -10,6 +10,7 @@ class TodoIsar {
   late String completionState;
   late DateTime createdAt;
   late int priority;
+  late List<String>? categories;
 
   Todo toDomain() {
     return Todo(
@@ -18,6 +19,7 @@ class TodoIsar {
       completionState: completionState,
       createdAt: createdAt,
       priority: priority,
+      categories: categories,
     );
   }
 
@@ -27,6 +29,7 @@ class TodoIsar {
       ..text = todo.text
       ..completionState = todo.completionState
       ..createdAt = todo.createdAt
-      ..priority = todo.priority;
+      ..priority = todo.priority
+      ..categories = todo.categories;
   }
 }

@@ -6,6 +6,7 @@ class Todo {
   final String completionState;
   final DateTime createdAt;
   final int priority;
+  final List<String>? categories;
 
   Todo({
     required this.id,
@@ -13,6 +14,7 @@ class Todo {
     this.completionState = 'todo',
     required this.createdAt,
     required this.priority,
+    this.categories,
   });
 
 
