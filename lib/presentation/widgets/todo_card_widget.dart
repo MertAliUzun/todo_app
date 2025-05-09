@@ -79,14 +79,16 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      widget.todo.text,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 24,
+                    Expanded(
+                      child: Text(
+                        widget.todo.text,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 24,
+                        ),
+                        maxLines: _isExpanded ? null : 1,
+                        overflow: _isExpanded ? null : TextOverflow.ellipsis,
                       ),
-                      maxLines: _isExpanded ? null : 1,
-                      overflow: _isExpanded ? null : TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -94,49 +96,95 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: widget.todo.getPriorityColor().withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: widget.todo.getPriorityColor()),
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: widget.todo.getPriorityColor().withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: widget.todo.getPriorityColor()),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          widget.todo.getPriorityIcon(),
+                          const SizedBox(width: 4),
+                          Text(
+                            widget.todo.getPriorityText(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: widget.todo.getPriorityColor(),
+                            ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              widget.todo.getPriorityIcon(),
-                              const SizedBox(width: 4),
-                              Text(
-                                widget.todo.getPriorityText(),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: widget.todo.getPriorityColor(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    trailing: IconButton(
+                  ],
+                ),
+                if (widget.todo.categories != null && widget.todo.categories!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: widget.todo.categories!.map((category) {
+                        return Chip(
+                          label: Text(
+                            category,
+                            style: const TextStyle(
+                              fontSize: 10,
+                            ),
+                          ),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                          backgroundColor: Colors.grey[200],
+                          padding: EdgeInsets.zero,
+                          labelPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: -2),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+              ],
+            ),
+            trailing: IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
               onPressed: () => widget.todoCubit.deleteTodo(widget.todo),
               tooltip: 'Sil',
             ),
-
           ),
           //Burada todo.text yerine subtaskleri göster
           if (_isExpanded)
             Padding(
               padding: const EdgeInsets.only(left: 46, right: 16, bottom: 16),
-              child: Text(
-                'test',
-                style: const TextStyle(
-                  fontSize: 16,
-                  height: 1.4,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Detaylar:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Kategoriler: ${widget.todo.categories != null ? widget.todo.categories!.join(", ") : "Yok"}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      height: 1.4,
+                    ),
+                  ),
+                  const Text(
+                    'test',
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
               ),
             ),
           if (_isExpanded)

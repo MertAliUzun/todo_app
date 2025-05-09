@@ -17,7 +17,17 @@ class _TodoViewState extends State<TodoView> {
   void _showAddTodoBox(BuildContext context) {
     final todoCubit = context.read<TodoCubit>();
     final textController = TextEditingController();
+    final customCategoryController = TextEditingController();
     int selectedPriority = 1; // Default olarak Medium (1) seçili
+    
+    // Önceden tanımlanmış kategoriler
+    final List<String> predefinedCategories = ['İş', 'Okul', 'Kişisel', 'Alışveriş', 'Sağlık'];
+    
+    // Seçilen kategorileri tutmak için set
+    Set<String> selectedCategories = {};
+    
+    // Özel kategori ekleme modu
+    bool isAddingCustomCategory = false;
 
     showDialog(
       context: context,
@@ -27,85 +37,150 @@ class _TodoViewState extends State<TodoView> {
             return AlertDialog(
               title: const Text('Yeni Görev Ekle'),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: textController,
-                    decoration: const InputDecoration(
-                      labelText: 'Görev',
-                      border: OutlineInputBorder(),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: textController,
+                      decoration: const InputDecoration(
+                        labelText: 'Görev',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Column(
-                    children: [
-                      Text('Priority',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24
-                      ),
-                      ),
-                      const SizedBox(height: 16,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                selectedPriority = 0;
-                              });
-                            },
-                            style: TextButton.styleFrom(
-                              backgroundColor: selectedPriority == 0 ? Colors.blue.withOpacity(0.2) : null,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side: BorderSide(
-                                  color: selectedPriority == 0 ? Colors.blue : Colors.transparent,
+                    const SizedBox(height: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Priority',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24
+                        ),
+                        ),
+                        const SizedBox(height: 16,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedPriority = 0;
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                backgroundColor: selectedPriority == 0 ? Colors.blue.withOpacity(0.2) : null,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(
+                                    color: selectedPriority == 0 ? Colors.blue : Colors.transparent,
+                                  ),
                                 ),
                               ),
+                              child: const Text('Düşük'),
                             ),
-                            child: const Text('Düşük'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                selectedPriority = 1;
-                              });
-                            },
-                            style: TextButton.styleFrom(
-                              backgroundColor: selectedPriority == 1 ? Colors.blue.withOpacity(0.2) : null,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side: BorderSide(
-                                  color: selectedPriority == 1 ? Colors.blue : Colors.transparent,
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedPriority = 1;
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                backgroundColor: selectedPriority == 1 ? Colors.blue.withOpacity(0.2) : null,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(
+                                    color: selectedPriority == 1 ? Colors.blue : Colors.transparent,
+                                  ),
                                 ),
                               ),
+                              child: const Text('Orta'),
                             ),
-                            child: const Text('Orta'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                selectedPriority = 2;
-                              });
-                            },
-                            style: TextButton.styleFrom(
-                              backgroundColor: selectedPriority == 2 ? Colors.blue.withOpacity(0.2) : null,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side: BorderSide(
-                                  color: selectedPriority == 2 ? Colors.blue : Colors.transparent,
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedPriority = 2;
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                backgroundColor: selectedPriority == 2 ? Colors.blue.withOpacity(0.2) : null,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(
+                                    color: selectedPriority == 2 ? Colors.blue : Colors.transparent,
+                                  ),
                                 ),
                               ),
+                              child: const Text('Yüksek'),
                             ),
-                            child: const Text('Yüksek'),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Kategoriler',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Kategori chip'leri
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            ...predefinedCategories.map((category) {
+                              final isSelected = selectedCategories.contains(category);
+                              return FilterChip(
+                                label: Text(category),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      selectedCategories.add(category);
+                                    } else {
+                                      selectedCategories.remove(category);
+                                    }
+                                  });
+                                },
+                                selectedColor: Colors.blue.withOpacity(0.2),
+                                checkmarkColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(
+                                    color: isSelected ? Colors.blue : Colors.grey,
+                                  ),
+                                ),
+                              );
+                            }),
+                            
+                            // Seçilen özel kategoriler
+                            ...selectedCategories
+                                .where((cat) => !predefinedCategories.contains(cat))
+                                .map((category) {
+                              return InputChip(
+                                label: Text(category),
+                                onDeleted: () {
+                                  setState(() {
+                                    selectedCategories.remove(category);
+                                  });
+                                },
+                                backgroundColor: Colors.blue.withOpacity(0.2),
+                                deleteIconColor: Colors.blue,
+                              );
+                            }),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -114,7 +189,13 @@ class _TodoViewState extends State<TodoView> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    todoCubit.addTodo(textController.text, selectedPriority);
+                    todoCubit.addTodo(
+                      textController.text, 
+                      selectedPriority,
+                      categories: selectedCategories.isNotEmpty 
+                          ? selectedCategories.toList() 
+                          : null,
+                    );
                     Navigator.of(context).pop();
                   },
                   child: const Text('Ekle'),
