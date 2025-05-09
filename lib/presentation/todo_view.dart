@@ -182,8 +182,8 @@ class _TodoViewState extends State<TodoView> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Theme.of(context).colorScheme.primary,
-                                  Theme.of(context).colorScheme.secondary,
+                                  todo.getPriorityColor(),
+                                  todo.getPriorityColor().withOpacity(0.7),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(12),

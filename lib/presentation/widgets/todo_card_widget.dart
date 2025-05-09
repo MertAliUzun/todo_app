@@ -39,45 +39,6 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
     return '${dateTime.day.toString().padLeft(2, '0')} ${motnhs[dateTime.month]} ${dateTime.year}';
   }
 
-  Color _getPriorityColor() {
-    switch (widget.todo.priority) {
-      case 0:
-        return Colors.green;
-      case 1:
-        return Colors.orange;
-      case 2:
-        return Colors.red;
-      default:
-        return Colors.orange;
-    }
-  }
-
-  String _getPriorityText() {
-    switch (widget.todo.priority) {
-      case 0:
-        return 'Düşük';
-      case 1:
-        return 'Orta';
-      case 2:
-        return 'Yüksek';
-      default:
-        return 'Orta';
-    }
-  }
-
-  Icon _getPriorityIcon() {
-    switch (widget.todo.priority) {
-      case 0:
-        return Icon(Icons.arrow_downward, color: _getPriorityColor(), size: 16);
-      case 1:
-        return Icon(Icons.arrow_forward, color: _getPriorityColor(), size: 16);
-      case 2:
-        return Icon(Icons.arrow_upward, color: _getPriorityColor(), size: 16);
-      default:
-        return Icon(Icons.arrow_forward, color: _getPriorityColor(), size: 16);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -137,21 +98,21 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _getPriorityColor().withOpacity(0.1),
+                            color: widget.todo.getPriorityColor().withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: _getPriorityColor()),
+                            border: Border.all(color: widget.todo.getPriorityColor()),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              _getPriorityIcon(),
+                              widget.todo.getPriorityIcon(),
                               const SizedBox(width: 4),
                               Text(
-                                _getPriorityText(),
+                                widget.todo.getPriorityText(),
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: _getPriorityColor(),
+                                  color: widget.todo.getPriorityColor(),
                                 ),
                               ),
                             ],
