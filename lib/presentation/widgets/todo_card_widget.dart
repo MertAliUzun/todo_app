@@ -39,6 +39,37 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
     return '${dateTime.day.toString().padLeft(2, '0')} ${motnhs[dateTime.month]} ${dateTime.year}';
   }
 
+  // Silme işlemi için onay diyaloğu göster
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Görev Silme'),
+        content: Text(
+          'Bu görevi silmek istediğinize emin misiniz?\n\n"${widget.todo.text}"',
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              widget.todoCubit.deleteTodo(widget.todo);
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Sil'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -146,7 +177,7 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
             ),
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-              onPressed: () => widget.todoCubit.deleteTodo(widget.todo),
+              onPressed: _showDeleteConfirmationDialog,
               tooltip: 'Sil',
             ),
           ),
