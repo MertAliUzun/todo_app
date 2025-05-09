@@ -74,31 +74,6 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                         color: Colors.grey[600],
                       ),
                     ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        widget.todo.text,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 24,
-                        ),
-                        maxLines: _isExpanded ? null : 1,
-                        overflow: _isExpanded ? null : TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
@@ -124,6 +99,27 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                     ),
                   ],
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.todo.text,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 24,
+                        ),
+                        maxLines: _isExpanded ? null : 1,
+                        overflow: _isExpanded ? null : TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 if (widget.todo.categories != null && widget.todo.categories!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -142,7 +138,6 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                           visualDensity: VisualDensity.compact,
                           backgroundColor: Colors.grey[200],
                           padding: EdgeInsets.zero,
-                          labelPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: -2),
                         );
                       }).toList(),
                     ),
