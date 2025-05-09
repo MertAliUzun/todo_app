@@ -2,42 +2,128 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_app/domain/models/todo.dart';
 import 'package:todo_app/presentation/todo_cubit.dart';
+import 'package:todo_app/presentation/widgets/todo_card_widget.dart';
 
-class TodoView extends StatelessWidget {
+class TodoView extends StatefulWidget {
   final int selectedIndex;
 
   const TodoView({super.key, required this.selectedIndex});
 
+  @override
+  State<TodoView> createState() => _TodoViewState();
+}
+
+class _TodoViewState extends State<TodoView> {
   void _showAddTodoBox(BuildContext context) {
     final todoCubit = context.read<TodoCubit>();
     final textController = TextEditingController();
+    int selectedPriority = 1; // Default olarak Medium (1) seçili
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Yeni Görev Ekle'),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        content: TextField(
-          controller: textController,
-          decoration: const InputDecoration(
-            labelText: 'Görev',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('İptal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              todoCubit.addTodo(textController.text);
-              Navigator.of(context).pop();
-            },
-            child: const Text('Ekle'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Yeni Görev Ekle'),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: textController,
+                    decoration: const InputDecoration(
+                      labelText: 'Görev',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    children: [
+                      Text('Priority',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24
+                      ),
+                      ),
+                      const SizedBox(height: 16,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedPriority = 0;
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: selectedPriority == 0 ? Colors.blue.withOpacity(0.2) : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: selectedPriority == 0 ? Colors.blue : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                            child: const Text('Düşük'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedPriority = 1;
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: selectedPriority == 1 ? Colors.blue.withOpacity(0.2) : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: selectedPriority == 1 ? Colors.blue : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                            child: const Text('Orta'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedPriority = 2;
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: selectedPriority == 2 ? Colors.blue.withOpacity(0.2) : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: selectedPriority == 2 ? Colors.blue : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                            child: const Text('Yüksek'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('İptal'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    todoCubit.addTodo(textController.text, selectedPriority);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Ekle'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -54,7 +140,7 @@ class TodoView extends StatelessWidget {
       ),
       body: DragTarget<Todo>(
         onAcceptWithDetails: (todo) {
-          todoCubit.updateTodoState(todo.data, selectedIndex);
+          todoCubit.updateTodoState(todo.data, widget.selectedIndex);
         },
         builder: (context, candidateData, rejectedData) {
           return BlocBuilder<TodoCubit, List<Todo>>(
@@ -152,125 +238,6 @@ class TodoView extends StatelessWidget {
         ],
       ),
       child: ExpandableTodoTile(todo: todo, todoCubit: todoCubit),
-    );
-  }
-}
-
-class ExpandableTodoTile extends StatefulWidget {
-  final Todo todo;
-  final TodoCubit todoCubit;
-
-  const ExpandableTodoTile({
-    Key? key,
-    required this.todo,
-    required this.todoCubit,
-  }) : super(key: key);
-
-  @override
-  State<ExpandableTodoTile> createState() => _ExpandableTodoTileState();
-}
-
-class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
-  bool _isExpanded = false;
-
-  String _formatDate(DateTime dateTime) {
-    // Türkçe ay adları
-    const Map<int, String> motnhs = {
-      1: 'Jan',
-      2: 'Feb',
-      3: 'Mar',
-      4: 'Apr',
-      5: 'May',
-      6: 'Jun',
-      7: 'Jul',
-      8: 'Agu',
-      9: 'Sep',
-      10: 'Oct',
-      11: 'Nov',
-      12: 'Dec',
-    };
-    
-    return '${dateTime.day.toString().padLeft(2, '0')} ${motnhs[dateTime.month]} ${dateTime.year}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        setState(() {
-          _isExpanded = !_isExpanded;
-        });
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            leading: Container(
-              child: Icon(
-                Icons.drag_indicator,
-                color: Colors.grey[500],
-                size: 35,
-              ),
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _formatDate(widget.todo.createdAt),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                Text(
-                  widget.todo.text,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 24,
-                  ),
-                  maxLines: _isExpanded ? null : 1,
-                  overflow: _isExpanded ? null : TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-              onPressed: () => widget.todoCubit.deleteTodo(widget.todo),
-              tooltip: 'Sil',
-            ),
-          ),
-          //Burada todo.text yerine subtaskleri göster
-          if (_isExpanded)
-            Padding(
-              padding: const EdgeInsets.only(left: 46, right: 16, bottom: 16),
-              child: Text(
-                'test',
-                style: const TextStyle(
-                  fontSize: 16,
-                  height: 1.4,
-                ),
-              ),
-            ),
-          if (_isExpanded)
-            Padding(
-              padding: const EdgeInsets.only(right: 16, bottom: 8),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  'Daraltmak için tıklayın',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

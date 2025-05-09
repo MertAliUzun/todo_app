@@ -9,6 +9,7 @@ class TodoIsar {
   late String text;
   late String completionState;
   late DateTime createdAt;
+  late int priority;
 
   Todo toDomain() {
     return Todo(
@@ -16,6 +17,7 @@ class TodoIsar {
       text: text,
       completionState: completionState,
       createdAt: createdAt,
+      priority: priority,
     );
   }
 
@@ -24,6 +26,7 @@ class TodoIsar {
       ..id = todo.id
       ..text = todo.text
       ..completionState = todo.completionState
-      ..createdAt = todo.createdAt;
+      ..createdAt = todo.createdAt
+      ..priority = todo.priority;
   }
 }
