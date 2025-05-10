@@ -9,12 +9,14 @@ class TodoCubit extends Cubit<List<Todo>> {
   final TodoRepo todoRepo;
   int currentIndex = 0;
   SortBy _sortCriteria = SortBy.date; // Varsayılan sıralama ölçütü
+  String? _selectedCategory = 'None'; // Varsayılan olarak 'None' değeri ile başla
 
   TodoCubit(this.todoRepo) : super([]) {
     loadTodos();
   }
 
   SortBy get sortCriteria => _sortCriteria;
+  String? get selectedCategory => _selectedCategory;
 
   Future<void> loadTodos() async {
     List<Todo> todoList;
@@ -32,10 +34,23 @@ class TodoCubit extends Cubit<List<Todo>> {
         todoList = await todoRepo.getTodo();
     }
     
+    // Kategori filtrelemesi - 'None' değilse filtrele
+    if (_selectedCategory != 'None') {
+      todoList = todoList.where((todo) => 
+        todo.categories != null && todo.categories!.contains(_selectedCategory)
+      ).toList();
+    }
+    
     // Sıralama kriterine göre listeyi sırala
     sortTodos(todoList);
     
     emit(todoList);
+  }
+
+  // Kategori filtresini değiştir
+  void changeCategory(String? category) {
+    _selectedCategory = category;
+    loadTodos();
   }
 
   // Görevleri belirtilen ölçüte göre sırala
@@ -105,5 +120,19 @@ class TodoCubit extends Cubit<List<Todo>> {
     await todoRepo.updateTodo(updatedTodo);
     //reload
     loadTodos();
+  }
+  
+  // Tüm mevcut kategorileri getir
+  Future<List<String>> getAllCategories() async {
+    final allTodos = await todoRepo.getTodo();
+    final Set<String> categories = {};
+    
+    for (final todo in allTodos) {
+      if (todo.categories != null) {
+        categories.addAll(todo.categories!);
+      }
+    }
+    
+    return categories.toList()..sort();
   }
 }

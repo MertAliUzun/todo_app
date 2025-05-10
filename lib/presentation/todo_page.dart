@@ -13,6 +13,8 @@ class TodoPage extends StatefulWidget {
 
 class _TodoPageState extends State<TodoPage> {
   int _selectedIndex = 0;
+  // Önceden tanımlanmış kategoriler
+  final List<String> _categories = ['None','İş', 'Okul', 'Kişisel', 'Alışveriş', 'Sağlık'];
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,52 @@ class _TodoPageState extends State<TodoPage> {
         title: Text('Test'),
         centerTitle: true,
         actions: [
+          // Kategori filtre butonu
+          PopupMenuButton<String?>(
+            icon: const Icon(Icons.filter_list),
+            tooltip: 'Kategori Filtrele',
+            onSelected: (String? category) {
+              todoCubit.changeCategory(category);
+            },
+            itemBuilder: (BuildContext context) {
+              final currentCategory = todoCubit.selectedCategory;
+              final items = <PopupMenuEntry<String?>>[
+                PopupMenuItem<String?>(
+                  value: 'None',
+                  child: Center(
+                    child: Text(
+                      'None',
+                      style: TextStyle(
+                        fontWeight: currentCategory == 'None' ? FontWeight.bold : FontWeight.normal,
+                        color: currentCategory == 'None' ? Colors.blue : Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ];
+
+              // Önceden tanımlanmış kategorileri ekle
+              for (final category in _categories) {
+                items.add(
+                  PopupMenuItem<String?>(
+                    value: category,
+                    child: Center(
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          fontWeight: currentCategory == category ? FontWeight.bold : FontWeight.normal,
+                          color: currentCategory == category ? Colors.blue : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+              
+              return items;
+            },
+          ),
+          // Sıralama butonu
           PopupMenuButton<SortBy>(
             icon: const Icon(Icons.sort),
             tooltip: 'Sırala',

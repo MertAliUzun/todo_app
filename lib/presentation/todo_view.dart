@@ -229,6 +229,7 @@ class _TodoViewState extends State<TodoView> {
             builder: (context, todos) {
               // Geçerli sıralama kriterini göster
               final sortCriteria = context.watch<TodoCubit>().sortCriteria;
+              final selectedCategory = context.watch<TodoCubit>().selectedCategory;
               
               return todos.isEmpty
                 ? Center(
@@ -253,12 +254,13 @@ class _TodoViewState extends State<TodoView> {
                   )
                 : Column(
                     children: [
-                      // Sıralama bilgisini gösteren banner
+                      // Sıralama ve filtreleme bilgilerini gösteren banner
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         color: Colors.grey.withOpacity(0.1),
                         child: Row(
                           children: [
+                            // Sıralama bilgisi
                             Icon(
                               sortCriteria == SortBy.name 
                                 ? Icons.sort_by_alpha
@@ -280,6 +282,32 @@ class _TodoViewState extends State<TodoView> {
                                 fontSize: 14,
                               ),
                             ),
+                            
+                            // Ayırıcı
+                            if (selectedCategory != 'None') ...[
+                              const SizedBox(width: 16),
+                              Container(
+                                height: 16,
+                                width: 1,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 16),
+                              
+                              // Kategori filtresi bilgisi
+                              Icon(
+                                Icons.filter_list,
+                                size: 16,
+                                color: Colors.grey[700],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Filtre: $selectedCategory',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
