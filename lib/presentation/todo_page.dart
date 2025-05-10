@@ -24,6 +24,52 @@ class _TodoPageState extends State<TodoPage> {
     });
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.cyan,
+        title: Text('Test'),
+        centerTitle: true,
+        actions: [
+          PopupMenuButton<SortBy>(
+            icon: const Icon(Icons.sort),
+            tooltip: 'Sırala',
+            onSelected: (SortBy sortBy) {
+              todoCubit.changeSortCriteria(sortBy);
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<SortBy>>[
+              const PopupMenuItem<SortBy>(
+                value: SortBy.name,
+                child: Row(
+                  children: [
+                    Icon(Icons.sort_by_alpha),
+                    SizedBox(width: 8),
+                    Text('İsme Göre'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<SortBy>(
+                value: SortBy.date,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today),
+                    SizedBox(width: 8),
+                    Text('Tarihe Göre'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<SortBy>(
+                value: SortBy.priority,
+                child: Row(
+                  children: [
+                    Icon(Icons.priority_high),
+                    SizedBox(width: 8),
+                    Text('Önceliğe Göre'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: TodoView(selectedIndex: _selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

@@ -179,6 +179,7 @@ class _TodoViewState extends State<TodoView> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -226,6 +227,9 @@ class _TodoViewState extends State<TodoView> {
         builder: (context, candidateData, rejectedData) {
           return BlocBuilder<TodoCubit, List<Todo>>(
             builder: (context, todos) {
+              // Geçerli sıralama kriterini göster
+              final sortCriteria = context.watch<TodoCubit>().sortCriteria;
+              
               return todos.isEmpty
                 ? Center(
                     child: Column(
@@ -247,54 +251,90 @@ class _TodoViewState extends State<TodoView> {
                       ],
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: todos.length,
-                    itemBuilder: (context, index) {
-                      final todo = todos[index];
-                      return Draggable<Todo>(
-                        data: todo,
-                        feedback: Material(
-                          elevation: 8,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  todo.getPriorityColor(),
-                                  todo.getPriorityColor().withOpacity(0.7),
-                                ],
+                : Column(
+                    children: [
+                      // Sıralama bilgisini gösteren banner
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        color: Colors.grey.withOpacity(0.1),
+                        child: Row(
+                          children: [
+                            Icon(
+                              sortCriteria == SortBy.name 
+                                ? Icons.sort_by_alpha
+                                : sortCriteria == SortBy.date
+                                  ? Icons.calendar_today
+                                  : Icons.priority_high,
+                              size: 16,
+                              color: Colors.grey[700],
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Sıralama: ${sortCriteria == SortBy.name 
+                                ? 'İsim' 
+                                : sortCriteria == SortBy.date
+                                  ? 'Tarih'
+                                  : 'Öncelik'}',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 14,
                               ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(12),
+                          itemCount: todos.length,
+                          itemBuilder: (context, index) {
+                            final todo = todos[index];
+                            return Draggable<Todo>(
+                              data: todo,
+                              feedback: Material(
+                                elevation: 8,
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width * 0.8,
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        todo.getPriorityColor(),
+                                        todo.getPriorityColor().withOpacity(0.7),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    todo.text,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: Text(
-                              todo.text,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
+                              childWhenDragging: Opacity(
+                                opacity: 0.3,
+                                child: _buildTodoCard(context, todo, todoCubit),
+                              ),
+                              child: _buildTodoCard(context, todo, todoCubit),
+                            );
+                          },
                         ),
-                        childWhenDragging: Opacity(
-                          opacity: 0.3,
-                          child: _buildTodoCard(context, todo, todoCubit),
-                        ),
-                        child: _buildTodoCard(context, todo, todoCubit),
-                      );
-                    },
+                      ),
+                    ],
                   );
             },
           );

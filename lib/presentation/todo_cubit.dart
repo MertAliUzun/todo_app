@@ -3,13 +3,18 @@ import 'package:safe_int_id/safe_int_id.dart';
 import 'package:todo_app/domain/models/todo.dart';
 import 'package:todo_app/domain/repository/todo_repo.dart';
 
+enum SortBy { name, date, priority }
+
 class TodoCubit extends Cubit<List<Todo>> {
   final TodoRepo todoRepo;
   int currentIndex = 0;
+  SortBy _sortCriteria = SortBy.date; // Varsayılan sıralama ölçütü
 
   TodoCubit(this.todoRepo) : super([]) {
     loadTodos();
   }
+
+  SortBy get sortCriteria => _sortCriteria;
 
   Future<void> loadTodos() async {
     List<Todo> todoList;
@@ -26,7 +31,32 @@ class TodoCubit extends Cubit<List<Todo>> {
       default:
         todoList = await todoRepo.getTodo();
     }
+    
+    // Sıralama kriterine göre listeyi sırala
+    sortTodos(todoList);
+    
     emit(todoList);
+  }
+
+  // Görevleri belirtilen ölçüte göre sırala
+  void sortTodos(List<Todo> todoList) {
+    switch (_sortCriteria) {
+      case SortBy.name:
+        todoList.sort((a, b) => a.text.compareTo(b.text));
+        break;
+      case SortBy.date:
+        todoList.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Yeniden eskiye
+        break;
+      case SortBy.priority:
+        todoList.sort((a, b) => b.priority.compareTo(a.priority)); // Yüksekten düşüğe
+        break;
+    }
+  }
+
+  // Sıralama kriterini değiştir
+  void changeSortCriteria(SortBy criteria) {
+    _sortCriteria = criteria;
+    loadTodos();
   }
 
   void changeIndex(int index) {
