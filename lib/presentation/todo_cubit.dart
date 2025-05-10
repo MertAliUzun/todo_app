@@ -42,7 +42,7 @@ class TodoCubit extends Cubit<List<Todo>> {
   void sortTodos(List<Todo> todoList) {
     switch (_sortCriteria) {
       case SortBy.name:
-        todoList.sort((a, b) => a.text.compareTo(b.text));
+        todoList.sort((a, b) => a.text.toLowerCase().compareTo(b.text.toLowerCase()));
         break;
       case SortBy.date:
         todoList.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Yeniden eskiye
