@@ -166,6 +166,48 @@ class TodoCubit extends Cubit<List<Todo>> {
     await todoRepo.updateTodo(updatedTodo);
     loadTodos();
   }
+
+  // Subtask'ın sırasını değiştir
+  Future<void> reorderSubtasks(Todo todo, int oldIndex, int newIndex) async {
+    if (todo.subtasks == null || todo.subtasks!.isEmpty) return;
+
+    // Önce sıralama numarasına göre sırala
+    final sortedSubtasks = List<Subtask>.from(todo.subtasks!);
+    sortedSubtasks.sort((a, b) => a.orderNo.compareTo(b.orderNo));
+    
+    // Taşınan subtask
+    final movedSubtask = sortedSubtasks[oldIndex];
+    
+    // Yeni sıralanmış listeyi oluştur
+    List<Subtask> newOrderedSubtasks = [];
+    
+    // Taşınan öğeyi listeden kaldır
+    sortedSubtasks.removeAt(oldIndex);
+    
+    // Yeni konuma ekle
+    sortedSubtasks.insert(newIndex, movedSubtask);
+    
+    // OrderNo'ları güncelle
+    for (int i = 0; i < sortedSubtasks.length; i++) {
+      newOrderedSubtasks.add(
+        sortedSubtasks[i].copyWith(orderNo: i + 1)
+      );
+    }
+    
+    // Todo'yu yeni sıralanmış subtask listesiyle güncelle
+    final updatedTodo = Todo(
+      id: todo.id,
+      text: todo.text,
+      completionState: todo.completionState,
+      createdAt: todo.createdAt,
+      priority: todo.priority,
+      categories: todo.categories,
+      subtasks: newOrderedSubtasks,
+    );
+    
+    await todoRepo.updateTodo(updatedTodo);
+    loadTodos();
+  }
   
   // Tüm mevcut kategorileri getir
   Future<List<String>> getAllCategories() async {

@@ -29,6 +29,8 @@ class _TodoViewState extends State<TodoView> {
     
     // Seçilen kategorileri tutmak için set
     Set<String> selectedCategories = {};
+
+    Map<int, bool> expandedTodos = {};
     
     // Özel kategori ekleme modu
     bool isAddingCustomCategory = false;
@@ -400,6 +402,13 @@ class _TodoViewState extends State<TodoView> {
                           itemCount: todos.length,
                           itemBuilder: (context, index) {
                             final todo = todos[index];
+                            
+                            // Alt görevleri olan todoları farklı işle
+                            if (todo.subtasks != null && todo.subtasks!.isNotEmpty) {
+                              return _buildTodoCard(context, todo, todoCubit);
+                            }
+                            
+                            // Alt görevi olmayan todolar için Draggable kullan
                             return Draggable<Todo>(
                               data: todo,
                               feedback: Material(
@@ -469,7 +478,11 @@ class _TodoViewState extends State<TodoView> {
           ),
         ],
       ),
-      child: ExpandableTodoTile(todo: todo, todoCubit: todoCubit),
+      child: ExpandableTodoTile(
+        todo: todo, 
+        todoCubit: todoCubit,
+        
+      ),
     );
   }
 }

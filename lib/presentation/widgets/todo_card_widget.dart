@@ -6,11 +6,13 @@ import 'package:todo_app/presentation/todo_cubit.dart';
 class ExpandableTodoTile extends StatefulWidget {
   final Todo todo;
   final TodoCubit todoCubit;
+  //final Function(bool isExpanded)? onExpansionChanged;
 
   const ExpandableTodoTile({
     Key? key,
     required this.todo,
     required this.todoCubit,
+    //this.onExpansionChanged,
   }) : super(key: key);
 
   @override
@@ -76,9 +78,11 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () {
+        
         setState(() {
           _isExpanded = !_isExpanded;
         });
+         //widget.onExpansionChanged?.call(!_isExpanded);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,16 +193,32 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (widget.todo.subtasks != null && widget.todo.subtasks!.isNotEmpty) ...[
-                    Text(
-                      'Alt Görevler:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'Alt Görevler:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Sıralamak için basılı tutup sürükleyin',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontStyle: FontStyle.italic,
+                            ),
+                            textAlign: TextAlign.end,
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 8),
-                    // Alt görevleri sırayla göster
-                    ...widget.todo.subtasks!.map((subtask) => _buildSubtaskItem(subtask)).toList(),
+                    // Alt görevleri sıralaması için ReorderableListView kullanıyoruz
+                    _buildReorderableSubtaskList(),
                     SizedBox(height: 16),
                   ],
                   
@@ -240,47 +260,91 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
     );
   }
   
-  Widget _buildSubtaskItem(Subtask subtask) {
-    return GestureDetector(
-      onTap: () {
-        // Alt göreve tıklanınca tamamlanma durumunu değiştir ve yayılımı engelle
-        widget.todoCubit.toggleSubtaskCompletion(widget.todo, subtask);
+  Widget _buildReorderableSubtaskList() {
+    if (widget.todo.subtasks == null || widget.todo.subtasks!.isEmpty) {
+      return SizedBox.shrink();
+    }
+    
+    // Subtask'leri orderNo'ya göre sırala
+    final sortedSubtasks = List<Subtask>.from(widget.todo.subtasks!);
+    sortedSubtasks.sort((a, b) => a.orderNo.compareTo(b.orderNo));
+    
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: sortedSubtasks.length,
+      onReorder: (oldIndex, newIndex) {
+        // ReorderableListView yeni index değerini farklı hesaplıyor, düzeltme:
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
+        
+        widget.todoCubit.reorderSubtasks(widget.todo, oldIndex, newIndex);
       },
-      behavior: HitTestBehavior.opaque, // Tüm alan tıklanabilir olsun
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Row(
-          children: [
-            InkWell(
-              onTap: () {
-                // Sadece ikona tıklanınca da tamamlanma durumunu değiştir
-                widget.todoCubit.toggleSubtaskCompletion(widget.todo, subtask);
-              },
-              child: Icon(
-                subtask.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
-                size: 20,
-                color: subtask.isCompleted ? Colors.green : Colors.grey,
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                subtask.text,
-                style: TextStyle(
-                  fontSize: 18,
-                  decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
-                  color: subtask.isCompleted ? Colors.grey : Colors.black,
+      itemBuilder: (context, index) {
+        final subtask = sortedSubtasks[index];
+        return _buildSubtaskItem(subtask, index);
+      },
+      proxyDecorator: (Widget child, int index, Animation<double> animation) {
+        // Sürükleme sırasında görünümü ayarla
+        return Material(
+          elevation: 4,
+          color: Colors.transparent,
+          shadowColor: Colors.grey.shade200,
+          child: AnimatedBuilder(
+            animation: animation,
+            builder: (context, child) {
+              return child!;
+            },
+            child: child,
+          ),
+        );
+      }
+    );
+  }
+  
+  Widget _buildSubtaskItem(Subtask subtask, int index) {
+    return Container(
+      key: ValueKey('subtask-${subtask.id}'),
+      child: GestureDetector(
+        onTap: () {
+          // Alt göreve tıklanınca tamamlanma durumunu değiştir ve yayılımı engelle
+          widget.todoCubit.toggleSubtaskCompletion(widget.todo, subtask);
+        },
+        behavior: HitTestBehavior.opaque, // Tüm alan tıklanabilir olsun
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  // Sadece ikona tıklanınca da tamamlanma durumunu değiştir
+                  widget.todoCubit.toggleSubtaskCompletion(widget.todo, subtask);
+                },
+                child: Icon(
+                  subtask.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
+                  size: 20,
+                  color: subtask.isCompleted ? Colors.green : Colors.grey,
                 ),
               ),
-            ),
-            Text(
-              '${subtask.orderNo}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  subtask.text,
+                  style: TextStyle(
+                    fontSize: 18,
+                    decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
+                    color: subtask.isCompleted ? Colors.grey : Colors.black,
+                  ),
+                ),
               ),
-            ),
-          ],
+              Icon(
+                Icons.drag_handle,
+                size: 20,
+                color: Colors.grey[400],
+              ),
+            ],
+          ),
         ),
       ),
     );
