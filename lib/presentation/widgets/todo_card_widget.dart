@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/domain/models/todo.dart';
+import 'package:todo_app/domain/models/subtask.dart';
 import 'package:todo_app/presentation/todo_cubit.dart';
 
 class ExpandableTodoTile extends StatefulWidget {
@@ -181,32 +182,38 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
               tooltip: 'Sil',
             ),
           ),
-          //Burada todo.text yerine subtaskleri göster
           if (_isExpanded)
             Padding(
               padding: const EdgeInsets.only(left: 46, right: 16, bottom: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  if (widget.todo.subtasks != null && widget.todo.subtasks!.isNotEmpty) ...[
+                    Text(
+                      'Alt Görevler:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    // Alt görevleri sırayla göster
+                    ...widget.todo.subtasks!.map((subtask) => _buildSubtaskItem(subtask)).toList(),
+                    SizedBox(height: 16),
+                  ],
+                  
+                  Text(
                     'Detaylar:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     'Kategoriler: ${widget.todo.categories != null ? widget.todo.categories!.join(", ") : "Yok"}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      height: 1.4,
-                    ),
-                  ),
-                  const Text(
-                    'test',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       height: 1.4,
                     ),
                   ),
@@ -228,6 +235,39 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildSubtaskItem(Subtask subtask) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          Icon(
+            subtask.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
+            size: 20,
+            color: subtask.isCompleted ? Colors.green : Colors.grey,
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              subtask.text,
+              style: TextStyle(
+                fontSize: 18,
+                decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
+                color: subtask.isCompleted ? Colors.grey : Colors.black,
+              ),
+            ),
+          ),
+          Text(
+            '${subtask.orderNo}',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[500],
+            ),
+          ),
         ],
       ),
     );

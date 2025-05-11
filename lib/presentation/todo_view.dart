@@ -20,6 +20,10 @@ class _TodoViewState extends State<TodoView> {
     final customCategoryController = TextEditingController();
     int selectedPriority = 1; // Default olarak Medium (1) seçili
     
+    // Subtask listesi
+    List<String> subtasks = [];
+    final subtaskController = TextEditingController();
+    
     // Önceden tanımlanmış kategoriler
     final List<String> predefinedCategories = ['İş', 'Okul', 'Kişisel', 'Alışveriş', 'Sağlık'];
     
@@ -119,6 +123,82 @@ class _TodoViewState extends State<TodoView> {
                       ],
                     ),
                     const SizedBox(height: 24),
+                    
+                    // Alt görevler bölümü
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Alt Görevler',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        
+                        // Alt görev ekleme
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: subtaskController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Alt görev ekle',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () {
+                                if (subtaskController.text.isNotEmpty) {
+                                  setState(() {
+                                    subtasks.add(subtaskController.text);
+                                    subtaskController.clear();
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        
+                        // Alt görev listesi
+                        if (subtasks.isNotEmpty)
+                          Container(
+                            margin: const EdgeInsets.only(top: 12),
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: subtasks.asMap().entries.map((entry) {
+                                int index = entry.key;
+                                String subtask = entry.value;
+                                return ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                  dense: true,
+                                  title: Text(subtask),
+                                  leading: const Icon(Icons.check_box_outline_blank, size: 20),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.close, size: 20),
+                                    onPressed: () {
+                                      setState(() {
+                                        subtasks.removeAt(index);
+                                      });
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 24),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -195,6 +275,9 @@ class _TodoViewState extends State<TodoView> {
                       selectedPriority,
                       categories: selectedCategories.isNotEmpty 
                           ? selectedCategories.toList() 
+                          : null,
+                      subtaskTexts: subtasks.isNotEmpty
+                          ? subtasks
                           : null,
                     );
                     Navigator.of(context).pop();

@@ -37,8 +37,14 @@ const TodoIsarSchema = CollectionSchema(
       name: r'priority',
       type: IsarType.long,
     ),
-    r'text': PropertySchema(
+    r'subtasks': PropertySchema(
       id: 4,
+      name: r'subtasks',
+      type: IsarType.objectList,
+      target: r'SubtaskIsar',
+    ),
+    r'text': PropertySchema(
+      id: 5,
       name: r'text',
       type: IsarType.string,
     )
@@ -50,7 +56,7 @@ const TodoIsarSchema = CollectionSchema(
   idName: r'id',
   indexes: {},
   links: {},
-  embeddedSchemas: {},
+  embeddedSchemas: {r'SubtaskIsar': SubtaskIsarSchema},
   getId: _todoIsarGetId,
   getLinks: _todoIsarGetLinks,
   attach: _todoIsarAttach,
@@ -76,6 +82,20 @@ int _todoIsarEstimateSize(
     }
   }
   bytesCount += 3 + object.completionState.length * 3;
+  {
+    final list = object.subtasks;
+    if (list != null) {
+      bytesCount += 3 + list.length * 3;
+      {
+        final offsets = allOffsets[SubtaskIsar]!;
+        for (var i = 0; i < list.length; i++) {
+          final value = list[i];
+          bytesCount +=
+              SubtaskIsarSchema.estimateSize(value, offsets, allOffsets);
+        }
+      }
+    }
+  }
   bytesCount += 3 + object.text.length * 3;
   return bytesCount;
 }
@@ -90,7 +110,13 @@ void _todoIsarSerialize(
   writer.writeString(offsets[1], object.completionState);
   writer.writeDateTime(offsets[2], object.createdAt);
   writer.writeLong(offsets[3], object.priority);
-  writer.writeString(offsets[4], object.text);
+  writer.writeObjectList<SubtaskIsar>(
+    offsets[4],
+    allOffsets,
+    SubtaskIsarSchema.serialize,
+    object.subtasks,
+  );
+  writer.writeString(offsets[5], object.text);
 }
 
 TodoIsar _todoIsarDeserialize(
@@ -105,7 +131,13 @@ TodoIsar _todoIsarDeserialize(
   object.createdAt = reader.readDateTime(offsets[2]);
   object.id = id;
   object.priority = reader.readLong(offsets[3]);
-  object.text = reader.readString(offsets[4]);
+  object.subtasks = reader.readObjectList<SubtaskIsar>(
+    offsets[4],
+    SubtaskIsarSchema.deserialize,
+    allOffsets,
+    SubtaskIsar(),
+  );
+  object.text = reader.readString(offsets[5]);
   return object;
 }
 
@@ -125,6 +157,13 @@ P _todoIsarDeserializeProp<P>(
     case 3:
       return (reader.readLong(offset)) as P;
     case 4:
+      return (reader.readObjectList<SubtaskIsar>(
+        offset,
+        SubtaskIsarSchema.deserialize,
+        allOffsets,
+        SubtaskIsar(),
+      )) as P;
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -755,6 +794,108 @@ extension TodoIsarQueryFilter
     });
   }
 
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> subtasksIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'subtasks',
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> subtasksIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'subtasks',
+      ));
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> subtasksLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'subtasks',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> subtasksIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'subtasks',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> subtasksIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'subtasks',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      subtasksLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'subtasks',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition>
+      subtasksLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'subtasks',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> subtasksLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'subtasks',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
   QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> textEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -887,7 +1028,14 @@ extension TodoIsarQueryFilter
 }
 
 extension TodoIsarQueryObject
-    on QueryBuilder<TodoIsar, TodoIsar, QFilterCondition> {}
+    on QueryBuilder<TodoIsar, TodoIsar, QFilterCondition> {
+  QueryBuilder<TodoIsar, TodoIsar, QAfterFilterCondition> subtasksElement(
+      FilterQuery<SubtaskIsar> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'subtasks');
+    });
+  }
+}
 
 extension TodoIsarQueryLinks
     on QueryBuilder<TodoIsar, TodoIsar, QFilterCondition> {}
@@ -1070,6 +1218,13 @@ extension TodoIsarQueryProperty
   QueryBuilder<TodoIsar, int, QQueryOperations> priorityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'priority');
+    });
+  }
+
+  QueryBuilder<TodoIsar, List<SubtaskIsar>?, QQueryOperations>
+      subtasksProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'subtasks');
     });
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'subtask.dart';
 
 class Todo {
   final int id;
@@ -7,6 +8,7 @@ class Todo {
   final DateTime createdAt;
   final int priority;
   final List<String>? categories;
+  final List<Subtask>? subtasks;
 
   Todo({
     required this.id,
@@ -15,20 +17,21 @@ class Todo {
     required this.createdAt,
     required this.priority,
     this.categories,
+    this.subtasks,
   });
 
 
 
   Todo stateToTodo () {
-    return Todo(id: id, text: text, completionState: 'todo', createdAt: DateTime.now(), priority: priority, categories: categories);
+    return Todo(id: id, text: text, completionState: 'todo', createdAt: DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
   }
 
   Todo stateToInProgress () {
-    return Todo(id: id, text: text, completionState: 'inProgress', createdAt: DateTime.now(), priority: priority, categories: categories);
+    return Todo(id: id, text: text, completionState: 'inProgress', createdAt: DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
   }
 
   Todo stateToDone () {
-    return Todo(id: id, text: text, completionState: 'done', createdAt: DateTime.now(), priority: priority, categories: categories);
+    return Todo(id: id, text: text, completionState: 'done', createdAt: DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
   }
 }
 

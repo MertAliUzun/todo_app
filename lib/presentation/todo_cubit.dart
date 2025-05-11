@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_int_id/safe_int_id.dart';
 import 'package:todo_app/domain/models/todo.dart';
+import 'package:todo_app/domain/models/subtask.dart';
 import 'package:todo_app/domain/repository/todo_repo.dart';
 
 enum SortBy { name, date, priority }
@@ -79,15 +80,31 @@ class TodoCubit extends Cubit<List<Todo>> {
     loadTodos();
   }
 
-  Future<void> addTodo(String _text, int _priority, {List<String>? categories}) async {
+  Future<void> addTodo(String _text, int _priority, {List<String>? categories, List<String>? subtaskTexts}) async {
     //create a new todo with a unique id
     final id = safeIntId.getId();
+    
+    // Subtask'ları oluştur
+    List<Subtask>? subtasks;
+    if (subtaskTexts != null && subtaskTexts.isNotEmpty) {
+      subtasks = [];
+      for (int i = 0; i < subtaskTexts.length; i++) {
+        subtasks.add(Subtask(
+          id: safeIntId.getId(), 
+          text: subtaskTexts[i],
+          isCompleted: false,
+          orderNo: i + 1,
+        ));
+      }
+    }
+    
     final newTodo = Todo(
       id: id, 
       text: _text, 
       createdAt: DateTime.now(), 
       priority: _priority,
       categories: categories,
+      subtasks: subtasks,
     );
     await todoRepo.addTodo(newTodo);
     //reload
