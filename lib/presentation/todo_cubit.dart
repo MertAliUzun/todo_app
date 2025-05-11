@@ -139,6 +139,34 @@ class TodoCubit extends Cubit<List<Todo>> {
     loadTodos();
   }
   
+  // Subtask'ın tamamlanma durumunu değiştir
+  Future<void> toggleSubtaskCompletion(Todo todo, Subtask subtask) async {
+    if (todo.subtasks == null) return;
+    
+    // Güncellenmiş subtask'ları oluştur
+    final updatedSubtasks = todo.subtasks!.map((s) {
+      if (s.id == subtask.id) {
+        // Tıklanan subtask'ın tamamlanma durumunu tersine çevir
+        return s.copyWith(isCompleted: !s.isCompleted);
+      }
+      return s;
+    }).toList();
+    
+    // Todo'yu yeni subtask listesiyle güncelle
+    final updatedTodo = Todo(
+      id: todo.id,
+      text: todo.text,
+      completionState: todo.completionState,
+      createdAt: todo.createdAt,
+      priority: todo.priority,
+      categories: todo.categories,
+      subtasks: updatedSubtasks,
+    );
+    
+    await todoRepo.updateTodo(updatedTodo);
+    loadTodos();
+  }
+  
   // Tüm mevcut kategorileri getir
   Future<List<String>> getAllCategories() async {
     final allTodos = await todoRepo.getTodo();

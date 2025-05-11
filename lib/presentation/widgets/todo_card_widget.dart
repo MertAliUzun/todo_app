@@ -241,34 +241,47 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
   }
   
   Widget _buildSubtaskItem(Subtask subtask) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        children: [
-          Icon(
-            subtask.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
-            size: 20,
-            color: subtask.isCompleted ? Colors.green : Colors.grey,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              subtask.text,
-              style: TextStyle(
-                fontSize: 18,
-                decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
-                color: subtask.isCompleted ? Colors.grey : Colors.black,
+    return GestureDetector(
+      onTap: () {
+        // Alt göreve tıklanınca tamamlanma durumunu değiştir ve yayılımı engelle
+        widget.todoCubit.toggleSubtaskCompletion(widget.todo, subtask);
+      },
+      behavior: HitTestBehavior.opaque, // Tüm alan tıklanabilir olsun
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Row(
+          children: [
+            InkWell(
+              onTap: () {
+                // Sadece ikona tıklanınca da tamamlanma durumunu değiştir
+                widget.todoCubit.toggleSubtaskCompletion(widget.todo, subtask);
+              },
+              child: Icon(
+                subtask.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
+                size: 20,
+                color: subtask.isCompleted ? Colors.green : Colors.grey,
               ),
             ),
-          ),
-          Text(
-            '${subtask.orderNo}',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[500],
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                subtask.text,
+                style: TextStyle(
+                  fontSize: 18,
+                  decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
+                  color: subtask.isCompleted ? Colors.grey : Colors.black,
+                ),
+              ),
             ),
-          ),
-        ],
+            Text(
+              '${subtask.orderNo}',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[500],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
