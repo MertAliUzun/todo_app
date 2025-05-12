@@ -28,57 +28,65 @@ class _TodoPageState extends State<TodoPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan,
-        title: Text('Test'),
-        centerTitle: true,
-        actions: [
-          // Kategori filtre butonu
-          PopupMenuButton<String?>(
-            icon: const Icon(Icons.filter_list),
-            tooltip: 'Kategori Filtrele',
-            onSelected: (String? category) {
-              todoCubit.changeCategory(category);
-            },
-            itemBuilder: (BuildContext context) {
-              final currentCategory = todoCubit.selectedCategory;
-              final items = <PopupMenuEntry<String?>>[
-                PopupMenuItem<String?>(
-                  value: 'None',
-                  child: Center(
-                    child: Text(
-                      'None',
-                      style: TextStyle(
-                        fontWeight: currentCategory == 'None' ? FontWeight.bold : FontWeight.normal,
-                        color: currentCategory == 'None' ? Colors.blue : Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ];
-
-              // Önceden tanımlanmış kategorileri ekle
-              for (final category in _categories) {
-                items.add(
-                  PopupMenuItem<String?>(
-                    value: category,
-                    child: Center(
-                      child: Text(
-                        category,
-                        style: TextStyle(
-                          fontWeight: currentCategory == category ? FontWeight.bold : FontWeight.normal,
-                          color: currentCategory == category ? Colors.blue : Colors.black,
+        title: Row(
+          children: [
+            BlocBuilder<TodoCubit, List<Todo>>(
+              builder: (context, _) {
+                final currentCategory = todoCubit.selectedCategory;
+                return PopupMenuButton<String?>(
+                  offset: const Offset(0, 40), // Dropdown menünün konumu
+                  tooltip: 'Kategori Filtrele',
+                  onSelected: (String? category) {
+                    todoCubit.changeCategory(category);
+                  },
+                  itemBuilder: (BuildContext context) {
+                    final items = <PopupMenuEntry<String?>>[];
+                    
+                    // Önceden tanımlanmış kategorileri ekle
+                    for (final category in _categories) {
+                      items.add(
+                        PopupMenuItem<String?>(
+                          value: category,
+                          child: Center(
+                            child: Text(
+                              category,
+                              style: TextStyle(
+                                fontWeight: currentCategory == category ? FontWeight.bold : FontWeight.normal,
+                                color: currentCategory == category ? Colors.blue : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    
+                    return items;
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.filter_list),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Kategori: $currentCategory',
+                        style: const TextStyle(
+                          fontSize: 16,
                         ),
                       ),
-                    ),
+                      const Icon(Icons.arrow_drop_down),
+                    ],
                   ),
                 );
-              }
-              
-              return items;
-            },
-          ),
+              },
+            ),
+          ],
+        ),
+        centerTitle: false,
+        actions: [
           // Sıralama butonu
           PopupMenuButton<SortBy>(
             icon: const Icon(Icons.sort),
+            offset: const Offset(0, 40), // Dropdown menünün konumu
             tooltip: 'Sırala',
             onSelected: (SortBy sortBy) {
               todoCubit.changeSortCriteria(sortBy);
