@@ -403,12 +403,15 @@ class _TodoViewState extends State<TodoView> {
                           itemBuilder: (context, index) {
                             final todo = todos[index];
                             
-                            // Alt görevleri olan todoları farklı işle
-                            if (todo.subtasks != null && todo.subtasks!.isNotEmpty) {
+                            // Genişletilmiş veya daraltılmış durumu kontrol et
+                            final isExpanded = todoCubit.isTodoExpanded(todo.id);
+                            
+                            // Eğer isExpanded true ise Draggable kullanma, direkt _buildTodoCard döndür
+                            if (isExpanded) {
                               return _buildTodoCard(context, todo, todoCubit);
                             }
                             
-                            // Alt görevi olmayan todolar için Draggable kullan
+                            // isExpanded false ise Draggable kullan
                             return Draggable<Todo>(
                               data: todo,
                               feedback: Material(

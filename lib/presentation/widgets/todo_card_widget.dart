@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_app/domain/models/todo.dart';
 import 'package:todo_app/domain/models/subtask.dart';
 import 'package:todo_app/presentation/todo_cubit.dart';
 
-class ExpandableTodoTile extends StatefulWidget {
+class ExpandableTodoTile extends StatelessWidget {
   final Todo todo;
   final TodoCubit todoCubit;
-  //final Function(bool isExpanded)? onExpansionChanged;
 
   const ExpandableTodoTile({
     Key? key,
     required this.todo,
     required this.todoCubit,
-    //this.onExpansionChanged,
   }) : super(key: key);
-
-  @override
-  State<ExpandableTodoTile> createState() => _ExpandableTodoTileState();
-}
-
-class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
-  bool _isExpanded = false;
 
   String _formatDate(DateTime dateTime) {
     // Türkçe ay adları
@@ -43,13 +35,13 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
   }
 
   // Silme işlemi için onay diyaloğu göster
-  void _showDeleteConfirmationDialog() {
+  void _showDeleteConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Görev Silme'),
         content: Text(
-          'Bu görevi silmek istediğinize emin misiniz?\n\n"${widget.todo.text}"',
+          'Bu görevi silmek istediğinize emin misiniz?\n\n"${todo.text}"',
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         actions: [
@@ -59,7 +51,7 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
           ),
           ElevatedButton(
             onPressed: () {
-              widget.todoCubit.deleteTodo(widget.todo);
+              todoCubit.deleteTodo(todo);
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
@@ -75,14 +67,14 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
 
   @override
   Widget build(BuildContext context) {
+    // Cubit'ten todo'nun genişletilme durumunu al
+    final bool isExpanded = todoCubit.isTodoExpanded(todo.id);
+    
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () {
-        
-        setState(() {
-          _isExpanded = !_isExpanded;
-        });
-         //widget.onExpansionChanged?.call(!_isExpanded);
+        // Genişletme durumunu Cubit üzerinden değiştir
+        todoCubit.toggleTodoExpansion(todo.id);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,7 +95,7 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      _formatDate(widget.todo.createdAt),
+                      _formatDate(todo.createdAt),
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 12,
@@ -113,21 +105,21 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: widget.todo.getPriorityColor().withOpacity(0.1),
+                        color: todo.getPriorityColor().withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: widget.todo.getPriorityColor()),
+                        border: Border.all(color: todo.getPriorityColor()),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          widget.todo.getPriorityIcon(),
+                          todo.getPriorityIcon(),
                           const SizedBox(width: 4),
                           Text(
-                            widget.todo.getPriorityText(),
+                            todo.getPriorityText(),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: widget.todo.getPriorityColor(),
+                              color: todo.getPriorityColor(),
                             ),
                           ),
                         ],
@@ -140,13 +132,13 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                   children: [
                     Expanded(
                       child: Text(
-                        widget.todo.text,
+                        todo.text,
                         style: const TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 24,
                         ),
-                        maxLines: _isExpanded ? null : 1,
-                        overflow: _isExpanded ? null : TextOverflow.ellipsis,
+                        maxLines: isExpanded ? null : 1,
+                        overflow: isExpanded ? null : TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -156,13 +148,13 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (widget.todo.categories != null && widget.todo.categories!.isNotEmpty)
+                if (todo.categories != null && todo.categories!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Wrap(
                       spacing: 6,
                       runSpacing: 6,
-                      children: widget.todo.categories!.map((category) {
+                      children: todo.categories!.map((category) {
                         return Chip(
                           label: Text(
                             category,
@@ -182,17 +174,17 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
             ),
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-              onPressed: _showDeleteConfirmationDialog,
+              onPressed: () => _showDeleteConfirmationDialog(context),
               tooltip: 'Sil',
             ),
           ),
-          if (_isExpanded)
+          if (isExpanded)
             Padding(
               padding: const EdgeInsets.only(left: 46, right: 16, bottom: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (widget.todo.subtasks != null && widget.todo.subtasks!.isNotEmpty) ...[
+                  if (todo.subtasks != null && todo.subtasks!.isNotEmpty) ...[
                     Row(
                       children: [
                         Text(
@@ -231,7 +223,7 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Kategoriler: ${widget.todo.categories != null ? widget.todo.categories!.join(", ") : "Yok"}',
+                    'Kategoriler: ${todo.categories != null ? todo.categories!.join(", ") : "Yok"}',
                     style: TextStyle(
                       fontSize: 14,
                       height: 1.4,
@@ -240,7 +232,7 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
                 ],
               ),
             ),
-          if (_isExpanded)
+          if (isExpanded)
             Padding(
               padding: const EdgeInsets.only(right: 16, bottom: 8),
               child: Align(
@@ -261,12 +253,12 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
   }
   
   Widget _buildReorderableSubtaskList() {
-    if (widget.todo.subtasks == null || widget.todo.subtasks!.isEmpty) {
+    if (todo.subtasks == null || todo.subtasks!.isEmpty) {
       return SizedBox.shrink();
     }
     
     // Subtask'leri orderNo'ya göre sırala
-    final sortedSubtasks = List<Subtask>.from(widget.todo.subtasks!);
+    final sortedSubtasks = List<Subtask>.from(todo.subtasks!);
     sortedSubtasks.sort((a, b) => a.orderNo.compareTo(b.orderNo));
     
     return ReorderableListView.builder(
@@ -279,11 +271,11 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
           newIndex -= 1;
         }
         
-        widget.todoCubit.reorderSubtasks(widget.todo, oldIndex, newIndex);
+        todoCubit.reorderSubtasks(todo, oldIndex, newIndex);
       },
       itemBuilder: (context, index) {
         final subtask = sortedSubtasks[index];
-        return _buildSubtaskItem(subtask, index);
+        return _buildSubtaskItem(subtask, index, context);
       },
       proxyDecorator: (Widget child, int index, Animation<double> animation) {
         // Sürükleme sırasında görünümü ayarla
@@ -303,13 +295,13 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
     );
   }
   
-  Widget _buildSubtaskItem(Subtask subtask, int index) {
+  Widget _buildSubtaskItem(Subtask subtask, int index, BuildContext context) {
     return Container(
       key: ValueKey('subtask-${subtask.id}'),
       child: GestureDetector(
         onTap: () {
           // Alt göreve tıklanınca tamamlanma durumunu değiştir ve yayılımı engelle
-          widget.todoCubit.toggleSubtaskCompletion(widget.todo, subtask);
+          todoCubit.toggleSubtaskCompletion(todo, subtask);
         },
         behavior: HitTestBehavior.opaque, // Tüm alan tıklanabilir olsun
         child: Padding(
@@ -319,7 +311,7 @@ class _ExpandableTodoTileState extends State<ExpandableTodoTile> {
               InkWell(
                 onTap: () {
                   // Sadece ikona tıklanınca da tamamlanma durumunu değiştir
-                  widget.todoCubit.toggleSubtaskCompletion(widget.todo, subtask);
+                  todoCubit.toggleSubtaskCompletion(todo, subtask);
                 },
                 child: Icon(
                   subtask.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,

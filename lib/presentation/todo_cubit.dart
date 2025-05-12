@@ -11,6 +11,9 @@ class TodoCubit extends Cubit<List<Todo>> {
   int currentIndex = 0;
   SortBy _sortCriteria = SortBy.date; // Varsayılan sıralama ölçütü
   String? _selectedCategory = 'None'; // Varsayılan olarak 'None' değeri ile başla
+  
+  // Genişletilmiş todo ID'lerini tutacak set
+  final Set<int> _expandedTodoIds = {};
 
   TodoCubit(this.todoRepo) : super([]) {
     loadTodos();
@@ -18,6 +21,20 @@ class TodoCubit extends Cubit<List<Todo>> {
 
   SortBy get sortCriteria => _sortCriteria;
   String? get selectedCategory => _selectedCategory;
+  
+  // Bir Todo'nun genişletilip genişletilmediğini kontrol et
+  bool isTodoExpanded(int todoId) => _expandedTodoIds.contains(todoId);
+  
+  // Todo'nun genişletilme durumunu değiştir
+  void toggleTodoExpansion(int todoId) {
+    if (_expandedTodoIds.contains(todoId)) {
+      _expandedTodoIds.remove(todoId);
+    } else {
+      _expandedTodoIds.add(todoId);
+    }
+    // State'i güncellemek için mevcut listeyi tekrar emit ediyoruz
+    emit(List.from(state));
+  }
 
   Future<void> loadTodos() async {
     List<Todo> todoList;
