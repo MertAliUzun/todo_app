@@ -23,15 +23,15 @@ class Todo {
 
 
   Todo stateToTodo () {
-    return Todo(id: id, text: text, completionState: 'todo', createdAt: DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
+    return Todo(id: id, text: text, completionState: 'todo', createdAt: createdAt ?? DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
   }
 
   Todo stateToInProgress () {
-    return Todo(id: id, text: text, completionState: 'inProgress', createdAt: DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
+    return Todo(id: id, text: text, completionState: 'inProgress', createdAt: createdAt ?? DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
   }
 
   Todo stateToDone () {
-    return Todo(id: id, text: text, completionState: 'done', createdAt: DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
+    return Todo(id: id, text: text, completionState: 'done', createdAt: createdAt ?? DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
   }
 }
 
