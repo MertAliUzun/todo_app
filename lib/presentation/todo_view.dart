@@ -232,7 +232,7 @@ class _TodoViewState extends State<TodoView> {
                                   });
                                 },
                                 selectedColor: Colors.blue.withOpacity(0.2),
-                                checkmarkColor: Colors.blue,
+                                showCheckmark: false,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                   side: BorderSide(

@@ -68,7 +68,7 @@ class _TodoPageState extends State<TodoPage> {
                       const Icon(Icons.filter_list),
                       const SizedBox(width: 6),
                       Text(
-                        'Kategori: $currentCategory',
+                        currentCategory ?? 'None',
                         style: const TextStyle(
                           fontSize: 16,
                         ),
