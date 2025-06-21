@@ -18,6 +18,7 @@ class _TodoViewState extends State<TodoView> {
     final todoCubit = context.read<TodoCubit>();
     final textController = TextEditingController();
     final customCategoryController = TextEditingController();
+    final theme = Theme.of(context);
     int selectedPriority = 1; // Default olarak Medium (1) seçili
     
     // Subtask listesi
@@ -41,8 +42,9 @@ class _TodoViewState extends State<TodoView> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Yeni Görev Ekle'),
+              title: Text('Yeni Görev Ekle', style: theme.textTheme.bodyLarge,),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              backgroundColor: theme.colorScheme.background,
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -55,11 +57,11 @@ class _TodoViewState extends State<TodoView> {
                         border: OutlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Priority',
+                        Text('Öncelik',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 24
@@ -220,7 +222,7 @@ class _TodoViewState extends State<TodoView> {
                             ...predefinedCategories.map((category) {
                               final isSelected = selectedCategories.contains(category);
                               return FilterChip(
-                                label: Text(category),
+                                label: Text(category, style: theme.textTheme.bodySmall,),
                                 selected: isSelected,
                                 onSelected: (selected) {
                                   setState(() {

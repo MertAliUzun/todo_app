@@ -9,10 +9,10 @@ final ThemeData darkTheme = ThemeData(
     foregroundColor: Colors.white,
   ),
   colorScheme: ColorScheme.dark(
-    primary: Colors.red,
+    primary: Colors.teal,
     secondary: Colors.tealAccent,
     background: Colors.black,
-    surface: Colors.grey,
+    surface: Colors.grey.shade900,
     onPrimary: Colors.white,
     onSecondary: Colors.black,
     onBackground: Colors.white,
