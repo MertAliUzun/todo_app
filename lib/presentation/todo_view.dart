@@ -315,6 +315,7 @@ class _TodoViewState extends State<TodoView> {
               // Geçerli sıralama kriterini göster
               final sortCriteria = context.watch<TodoCubit>().sortCriteria;
               final selectedCategory = context.watch<TodoCubit>().selectedCategory;
+              final theme = Theme.of(context);
               
               return todos.isEmpty
                 ? Center(
@@ -324,14 +325,14 @@ class _TodoViewState extends State<TodoView> {
                         Icon(
                           Icons.task_alt,
                           size: 80,
-                          color: Colors.grey[400],
+                          color: theme.disabledColor,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'Henüz görev yok',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.grey[600],
+                            color: theme.hintColor,
                           ),
                         ),
                       ],
@@ -342,7 +343,7 @@ class _TodoViewState extends State<TodoView> {
                       // Sıralama ve filtreleme bilgilerini gösteren banner
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        color: Colors.grey.withOpacity(0.1),
+                        color: theme.dividerColor.withOpacity(0.05),
                         child: Row(
                           children: [
                             // Sıralama bilgisi
@@ -353,7 +354,7 @@ class _TodoViewState extends State<TodoView> {
                                   ? Icons.calendar_today
                                   : Icons.priority_high,
                               size: 16,
-                              color: Colors.grey[700],
+                              color: theme.iconTheme.color,
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -363,7 +364,7 @@ class _TodoViewState extends State<TodoView> {
                                   ? 'Tarih'
                                   : 'Öncelik'}',
                               style: TextStyle(
-                                color: Colors.grey[700],
+                                color: theme.textTheme.bodySmall?.color,
                                 fontSize: 14,
                               ),
                             ),
@@ -374,7 +375,7 @@ class _TodoViewState extends State<TodoView> {
                               Container(
                                 height: 16,
                                 width: 1,
-                                color: Colors.grey,
+                                color: theme.dividerColor,
                               ),
                               const SizedBox(width: 16),
                               
@@ -382,13 +383,13 @@ class _TodoViewState extends State<TodoView> {
                               Icon(
                                 Icons.filter_list,
                                 size: 16,
-                                color: Colors.grey[700],
+                                color: theme.iconTheme.color,
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 'Filtre: $selectedCategory',
                                 style: TextStyle(
-                                  color: Colors.grey[700],
+                                  color: theme.textTheme.bodySmall?.color,
                                   fontSize: 14,
                                 ),
                               ),
@@ -430,7 +431,7 @@ class _TodoViewState extends State<TodoView> {
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
+                                        color: theme.shadowColor.withOpacity(0.2),
                                         blurRadius: 8,
                                         offset: const Offset(0, 3),
                                       ),
@@ -467,14 +468,15 @@ class _TodoViewState extends State<TodoView> {
   }
 
   Widget _buildTodoCard(BuildContext context, Todo todo, TodoCubit todoCubit) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: theme.shadowColor.withOpacity(0.4),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -484,7 +486,6 @@ class _TodoViewState extends State<TodoView> {
       child: ExpandableTodoTile(
         todo: todo, 
         todoCubit: todoCubit,
-        
       ),
     );
   }

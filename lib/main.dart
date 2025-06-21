@@ -7,6 +7,7 @@ import 'package:todo_app/data/repository/isar_todo_repo.dart';
 import 'package:todo_app/domain/repository/todo_repo.dart';
 import 'package:todo_app/presentation/todo_cubit.dart';
 import 'package:todo_app/presentation/todo_page.dart';
+import 'package:todo_app/presentation/theme_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,14 +30,31 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TodoCubit(todoRepo),
-      child: MaterialApp(
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          useMaterial3: true,
-        ),
-        home: const TodoPage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => TodoCubit(todoRepo)),
+        BlocProvider(create: (context) => ThemeCubit()..changeTheme(ThemeMode.dark)),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return MaterialApp(
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+              useMaterial3: true,
+              brightness: Brightness.light,
+            ),
+            darkTheme: ThemeData(
+              brightness: Brightness.dark,
+              colorScheme: ColorScheme.dark(
+                primary: Colors.cyan,
+                secondary: Colors.amber,
+              ),
+              useMaterial3: true,
+            ),
+            themeMode: themeMode,
+            home: const TodoPage(),
+          );
+        },
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_app/domain/models/todo.dart';
 import 'package:todo_app/presentation/todo_cubit.dart';
 import 'package:todo_app/presentation/todo_view.dart';
+import 'package:todo_app/presentation/settings_page.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});
@@ -65,8 +66,6 @@ class _TodoPageState extends State<TodoPage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.filter_list),
-                      const SizedBox(width: 6),
                       Text(
                         currentCategory ?? 'None',
                         style: const TextStyle(
@@ -123,6 +122,16 @@ class _TodoPageState extends State<TodoPage> {
                 ),
               ),
             ],
+          ),
+          // Settings butonu
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Ayarlar',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
           ),
         ],
       ),

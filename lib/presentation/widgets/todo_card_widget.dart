@@ -69,6 +69,7 @@ class ExpandableTodoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // Cubit'ten todo'nun genişletilme durumunu al
     final bool isExpanded = todoCubit.isTodoExpanded(todo.id);
+    final theme = Theme.of(context);
     
     return InkWell(
       borderRadius: BorderRadius.circular(12),
@@ -84,7 +85,7 @@ class ExpandableTodoTile extends StatelessWidget {
             leading: Container(
               child: Icon(
                 Icons.drag_indicator,
-                color: Colors.grey[500],
+                color: theme.iconTheme.color?.withOpacity(0.5),
                 size: 35,
               ),
             ),
@@ -99,7 +100,7 @@ class ExpandableTodoTile extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: theme.hintColor,
                       ),
                     ),
                     Container(
@@ -164,7 +165,7 @@ class ExpandableTodoTile extends StatelessWidget {
                           ),
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           visualDensity: VisualDensity.compact,
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: theme.dividerColor.withOpacity(0.1),
                           padding: EdgeInsets.zero,
                         );
                       }).toList(),
@@ -192,6 +193,7 @@ class ExpandableTodoTile extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            color: theme.textTheme.bodyLarge?.color,
                           ),
                         ),
                         SizedBox(width: 8),
@@ -200,7 +202,7 @@ class ExpandableTodoTile extends StatelessWidget {
                             'Sıralamak için basılı tutup sürükleyin',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[600],
+                              color: theme.hintColor,
                               fontStyle: FontStyle.italic,
                             ),
                             textAlign: TextAlign.end,
