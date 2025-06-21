@@ -298,6 +298,7 @@ class ExpandableTodoTile extends StatelessWidget {
   }
   
   Widget _buildSubtaskItem(Subtask subtask, int index, BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       key: ValueKey('subtask-${subtask.id}'),
       child: GestureDetector(
@@ -328,7 +329,7 @@ class ExpandableTodoTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
-                    color: subtask.isCompleted ? Colors.grey : Colors.black,
+                    color: subtask.isCompleted ? theme.disabledColor : theme.colorScheme.onSurface,
                   ),
                 ),
               ),

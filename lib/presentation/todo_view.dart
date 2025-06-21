@@ -274,17 +274,37 @@ class _TodoViewState extends State<TodoView> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    todoCubit.addTodo(
-                      textController.text, 
-                      selectedPriority,
-                      categories: selectedCategories.isNotEmpty 
-                          ? selectedCategories.toList() 
-                          : null,
-                      subtaskTexts: subtasks.isNotEmpty
-                          ? subtasks
-                          : null,
-                    );
-                    Navigator.of(context).pop();
+                    if (textController.text.trim().isEmpty) {
+                        showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Uyarı'),
+                            content: Text('Lütfen görev ismi giriniz'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Dialog'u kapatır
+                                },
+                                child: Text('Tamam'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      todoCubit.addTodo(
+                        textController.text, 
+                        selectedPriority,
+                        categories: selectedCategories.isNotEmpty 
+                            ? selectedCategories.toList() 
+                            : null,
+                        subtaskTexts: subtasks.isNotEmpty
+                            ? subtasks
+                            : null,
+                      );
+                      Navigator.of(context).pop();
+                    }
                   },
                   child: const Text('Ekle'),
                 ),
