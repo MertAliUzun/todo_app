@@ -25,16 +25,18 @@ class _TodoPageState extends State<TodoPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       todoCubit.changeIndex(_selectedIndex);
     });
-
+    final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.cyan,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         title: Row(
           children: [
             BlocBuilder<TodoCubit, List<Todo>>(
               builder: (context, _) {
                 final currentCategory = todoCubit.selectedCategory;
                 return PopupMenuButton<String?>(
+                  color: theme.colorScheme.secondaryContainer,
                   offset: const Offset(0, 40), // Dropdown menünün konumu
                   tooltip: 'Kategori Filtrele',
                   onSelected: (String? category) {
@@ -51,10 +53,7 @@ class _TodoPageState extends State<TodoPage> {
                           child: Center(
                             child: Text(
                               category,
-                              style: TextStyle(
-                                fontWeight: currentCategory == category ? FontWeight.bold : FontWeight.normal,
-                                color: currentCategory == category ? Colors.blue : Colors.black,
-                              ),
+                              style: currentCategory == category ? theme.textTheme.bodySmall : theme.textTheme.bodyLarge
                             ),
                           ),
                         ),
@@ -84,6 +83,7 @@ class _TodoPageState extends State<TodoPage> {
         actions: [
           // Sıralama butonu
           PopupMenuButton<SortBy>(
+            color: theme.colorScheme.secondaryContainer,
             icon: const Icon(Icons.sort),
             offset: const Offset(0, 40), // Dropdown menünün konumu
             tooltip: 'Sırala',
@@ -91,33 +91,33 @@ class _TodoPageState extends State<TodoPage> {
               todoCubit.changeSortCriteria(sortBy);
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<SortBy>>[
-              const PopupMenuItem<SortBy>(
+              PopupMenuItem<SortBy>(
                 value: SortBy.name,
                 child: Row(
                   children: [
                     Icon(Icons.sort_by_alpha),
                     SizedBox(width: 8),
-                    Text('İsme Göre'),
+                    Text('İsme Göre', style: theme.textTheme.bodyLarge,),
                   ],
                 ),
               ),
-              const PopupMenuItem<SortBy>(
+              PopupMenuItem<SortBy>(
                 value: SortBy.date,
                 child: Row(
                   children: [
                     Icon(Icons.calendar_today),
                     SizedBox(width: 8),
-                    Text('Tarihe Göre'),
+                    Text('Tarihe Göre', style: theme.textTheme.bodyLarge,),
                   ],
                 ),
               ),
-              const PopupMenuItem<SortBy>(
+              PopupMenuItem<SortBy>(
                 value: SortBy.priority,
                 child: Row(
                   children: [
                     Icon(Icons.priority_high),
                     SizedBox(width: 8),
-                    Text('Önceliğe Göre'),
+                    Text('Önceliğe Göre', style: theme.textTheme.bodyLarge,),
                   ],
                 ),
               ),

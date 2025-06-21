@@ -300,7 +300,7 @@ class _TodoViewState extends State<TodoView> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(context).floatingActionButtonTheme.backgroundColor,
         elevation: 6,
         child: const Icon(Icons.add),
         onPressed: () => _showAddTodoBox(context),

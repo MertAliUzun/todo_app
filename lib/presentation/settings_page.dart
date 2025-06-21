@@ -7,6 +7,7 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ayarlar'),
@@ -18,23 +19,24 @@ class SettingsPage extends StatelessWidget {
           children: [
             const Text('Tema Seçimi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            BlocBuilder<ThemeCubit, ThemeMode>(
-              builder: (context, themeMode) {
-                return DropdownButton<ThemeMode>(
-                  value: themeMode,
-                  items: const [
+            BlocBuilder<ThemeCubit, ThemeState>(
+              builder: (context, themeState) {
+                return DropdownButton<AppTheme>(
+                  dropdownColor: theme.colorScheme.secondaryContainer,
+                  value: themeState.appTheme,
+                  items: [
                     DropdownMenuItem(
-                      value: ThemeMode.light,
-                      child: Text('Açık Tema'),
+                      value: AppTheme.light,
+                      child: Text('Açık Tema', style: theme.textTheme.bodyLarge,),
                     ),
                     DropdownMenuItem(
-                      value: ThemeMode.dark,
-                      child: Text('Koyu Tema'),
+                      value: AppTheme.dark,
+                      child: Text('Koyu Tema', style: theme.textTheme.bodyLarge,),
                     ),
                   ],
-                  onChanged: (ThemeMode? newMode) {
-                    if (newMode != null) {
-                      context.read<ThemeCubit>().changeTheme(newMode);
+                  onChanged: (AppTheme? newTheme) {
+                    if (newTheme != null) {
+                      context.read<ThemeCubit>().changeTheme(newTheme);
                     }
                   },
                 );

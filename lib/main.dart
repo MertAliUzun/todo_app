@@ -33,25 +33,12 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => TodoCubit(todoRepo)),
-        BlocProvider(create: (context) => ThemeCubit()..changeTheme(ThemeMode.dark)),
+        BlocProvider(create: (context) => ThemeCubit()..changeTheme(AppTheme.dark)),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeMode>(
-        builder: (context, themeMode) {
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
           return MaterialApp(
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-              useMaterial3: true,
-              brightness: Brightness.light,
-            ),
-            darkTheme: ThemeData(
-              brightness: Brightness.dark,
-              colorScheme: ColorScheme.dark(
-                primary: Colors.cyan,
-                secondary: Colors.amber,
-              ),
-              useMaterial3: true,
-            ),
-            themeMode: themeMode,
+            theme: themeState.themeData,
             home: const TodoPage(),
           );
         },
