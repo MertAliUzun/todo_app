@@ -150,10 +150,12 @@ class _AddTodoPageState extends State<AddTodoPage> {
     final todoCubit = context.read<TodoCubit>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Yeni Görev Ekle'),
-        backgroundColor: theme.colorScheme.primary,
+      appBar:  AppBar(
+        title: const Text('Yeni Görev Ekle'), 
+        centerTitle: true,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         foregroundColor: theme.colorScheme.onPrimary,
+        scrolledUnderElevation: 0,
       ),
       body: BlocListener<AiTodoBloc, AiTodoState>(
         listener: (context, state) {
@@ -174,14 +176,27 @@ class _AddTodoPageState extends State<AddTodoPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Görev adı
-                    TextField(
-                      controller: _textController,
-                      decoration: const InputDecoration(
-                        labelText: 'Görev',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (_) => _onUserEdit(),
-                      enabled: !_isTypingTask && !_isTypingSubtasks && !_isAnimating,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Görev Adı',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _textController,
+                          decoration: const InputDecoration(
+                            labelText: 'Görev',
+                            border: OutlineInputBorder(),
+                          ),
+                          onChanged: (_) => _onUserEdit(),
+                          enabled: !_isTypingTask && !_isTypingSubtasks && !_isAnimating,
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 24),
                     // Öncelik seçimi
@@ -336,7 +351,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             ..._predefinedCategories.map((category) {
                               final isSelected = _selectedCategories.contains(category);
                               return FilterChip(
-                                label: Text(category, style: theme.textTheme.bodySmall),
+                                label: Text(category, style: theme.textTheme.titleMedium),
                                 selected: isSelected,
                                 onSelected: !_isTypingTask && !_isTypingSubtasks && !_isAnimating ? (selected) {
                                   setState(() {
@@ -377,7 +392,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                   SizedBox(height: 64),
                     // Ekle butonu
                     ElevatedButton(
                       onPressed: () {

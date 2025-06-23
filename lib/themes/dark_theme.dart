@@ -29,6 +29,7 @@ final ThemeData darkTheme = ThemeData(
     bodyLarge: TextStyle(color: Colors.white),
     bodyMedium: TextStyle(color: Colors.white70),
     bodySmall: TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold),
+    titleMedium: TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold),
   ),
   dividerColor: Colors.teal,
   hintColor: Colors.tealAccent,

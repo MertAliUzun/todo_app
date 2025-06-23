@@ -30,6 +30,7 @@ class _TodoPageState extends State<TodoPage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        scrolledUnderElevation: 0,
         title: Row(
           children: [
             BlocBuilder<TodoCubit, List<Todo>>(
