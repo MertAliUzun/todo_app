@@ -14,18 +14,32 @@ class AddTodoPage extends StatefulWidget {
 
 class _AddTodoPageState extends State<AddTodoPage> {
   final TextEditingController _aiPromptController = TextEditingController();
-  bool _isManualMode = false;
-  bool _isGenerating = false;
+  final TextEditingController _textController = TextEditingController();
+  final TextEditingController _customCategoryController = TextEditingController();
+  final TextEditingController _subtaskController = TextEditingController();
+  int _selectedPriority = 1;
+  List<String> _subtasks = [];
+  Set<String> _selectedCategories = {};
+  final List<String> _predefinedCategories = ['İş', 'Okul', 'Kişisel', 'Alışveriş', 'Sağlık'];
+  bool _isAddingCustomCategory = false;
 
   @override
   void dispose() {
     _aiPromptController.dispose();
+    _textController.dispose();
+    _customCategoryController.dispose();
+    _subtaskController.dispose();
     super.dispose();
   }
 
-  void _toggleMode() {
+  void _fillFormWithGeneratedTodo(Todo generatedTodo) {
     setState(() {
-      _isManualMode = !_isManualMode;
+      _textController.text = generatedTodo.text;
+      _selectedPriority = generatedTodo.priority;
+      _selectedCategories = generatedTodo.categories != null
+          ? generatedTodo.categories!.toSet()
+          : {};
+      _subtasks = generatedTodo.subtasks?.map((s) => s.text).toList() ?? [];
     });
   }
 
@@ -36,7 +50,6 @@ class _AddTodoPageState extends State<AddTodoPage> {
       );
       return;
     }
-
     context.read<AiTodoBloc>().add(
       GenerateTodoEvent(prompt: _aiPromptController.text.trim()),
     );
@@ -45,7 +58,8 @@ class _AddTodoPageState extends State<AddTodoPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final todoCubit = context.read<TodoCubit>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Yeni Görev Ekle'),
@@ -55,474 +69,306 @@ class _AddTodoPageState extends State<AddTodoPage> {
       body: BlocListener<AiTodoBloc, AiTodoState>(
         listener: (context, state) {
           if (state is AiTodoSuccess) {
-            _showGeneratedTodoDialog(state.todo);
+            _fillFormWithGeneratedTodo(state.todo);
           } else if (state is AiTodoError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Hata: ${state.message}')),
             );
           }
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Mod seçimi
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _isManualMode ? Icons.edit : Icons.auto_awesome,
-                        color: theme.colorScheme.primary,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _isManualMode ? 'Manuel Ekleme' : 'AI ile Oluştur',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                      ),
-                      Switch(
-                        value: _isManualMode,
-                        onChanged: (value) => _toggleMode(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              if (!_isManualMode) ...[
-                // AI modu
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'AI\'ya Ne Yapmak İstediğinizi Anlatın',
-                        style: theme.textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: TextField(
-                          controller: _aiPromptController,
-                          maxLines: null,
-                          expands: true,
-                          decoration: InputDecoration(
-                            hintText: 'Örnek: "Yarın sabah 8\'de kalkıp spor yapmak istiyorum" veya "Bu hafta sonu ev temizliği yapacağım"',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                            fillColor: theme.colorScheme.surface,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      BlocBuilder<AiTodoBloc, AiTodoState>(
-                        builder: (context, state) {
-                          return ElevatedButton.icon(
-                            onPressed: state is AiTodoLoading ? null : _generateTodoWithAI,
-                            icon: state is AiTodoLoading 
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Icon(Icons.auto_awesome),
-                            label: Text(
-                              state is AiTodoLoading ? 'Oluşturuluyor...' : 'AI ile Oluştur',
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ] else ...[
-                // Manuel mod
-                Expanded(
-                  child: _ManualTodoForm(),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showGeneratedTodoDialog(Todo generatedTodo) {
-    final todoCubit = context.read<TodoCubit>();
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('AI Tarafından Oluşturulan Görev'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Row(
-              children: [
-                const Text('Görev: '),
-                Expanded(
-                  child: TypingEffectWidget(
-                    text: generatedTodo.text,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Text('Öncelik: '),
-                TypingEffectWidget(
-                  text: generatedTodo.getPriorityText(),
-                  style: TextStyle(
-                    color: generatedTodo.getPriorityColor(),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            if (generatedTodo.categories != null && generatedTodo.categories!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Text('Kategoriler: '),
-                  Expanded(
-                    child: TypingEffectWidget(
-                      text: generatedTodo.categories!.join(', '),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            if (generatedTodo.subtasks != null && generatedTodo.subtasks!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              const Text('Alt Görevler:'),
-              ...generatedTodo.subtasks!.map((subtask) => 
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, top: 4),
-                  child: Row(
-                    children: [
-                      const Text('• '),
-                      Expanded(
-                        child: TypingEffectWidget(
-                          text: subtask.text,
-                          duration: const Duration(milliseconds: 30),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('İptal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              todoCubit.addTodo(
-                generatedTodo.text,
-                generatedTodo.priority,
-                categories: generatedTodo.categories,
-                subtaskTexts: generatedTodo.subtasks?.map((s) => s.text).toList(),
-              );
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-            },
-            child: const Text('Ekle'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ManualTodoForm extends StatefulWidget {
-  @override
-  State<_ManualTodoForm> createState() => _ManualTodoFormState();
-}
-
-class _ManualTodoFormState extends State<_ManualTodoForm> {
-  final textController = TextEditingController();
-  final customCategoryController = TextEditingController();
-  int selectedPriority = 1;
-  List<String> subtasks = [];
-  final subtaskController = TextEditingController();
-  final List<String> predefinedCategories = ['İş', 'Okul', 'Kişisel', 'Alışveriş', 'Sağlık'];
-  Set<String> selectedCategories = {};
-  bool isAddingCustomCategory = false;
-
-  @override
-  void dispose() {
-    textController.dispose();
-    customCategoryController.dispose();
-    subtaskController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final todoCubit = context.read<TodoCubit>();
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
-            controller: textController,
-            decoration: const InputDecoration(
-              labelText: 'Görev',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 24),
-          
-          // Öncelik seçimi
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Öncelik',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => setState(() => selectedPriority = 0),
-                    style: TextButton.styleFrom(
-                      backgroundColor: selectedPriority == 0 ? Colors.blue.withOpacity(0.2) : null,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: selectedPriority == 0 ? Colors.blue : Colors.transparent,
-                        ),
-                      ),
-                    ),
-                    child: const Text('Düşük'),
-                  ),
-                  TextButton(
-                    onPressed: () => setState(() => selectedPriority = 1),
-                    style: TextButton.styleFrom(
-                      backgroundColor: selectedPriority == 1 ? Colors.blue.withOpacity(0.2) : null,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: selectedPriority == 1 ? Colors.blue : Colors.transparent,
-                        ),
-                      ),
-                    ),
-                    child: const Text('Orta'),
-                  ),
-                  TextButton(
-                    onPressed: () => setState(() => selectedPriority = 2),
-                    style: TextButton.styleFrom(
-                      backgroundColor: selectedPriority == 2 ? Colors.blue.withOpacity(0.2) : null,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: selectedPriority == 2 ? Colors.blue : Colors.transparent,
-                        ),
-                      ),
-                    ),
-                    child: const Text('Yüksek'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Alt görevler
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Alt Görevler',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24
-                ),
-              ),
-              const SizedBox(height: 12),
-              
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: subtaskController,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Görev adı
+                    TextField(
+                      controller: _textController,
                       decoration: const InputDecoration(
-                        labelText: 'Alt görev ekle',
+                        labelText: 'Görev',
                         border: OutlineInputBorder(),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      if (subtaskController.text.isNotEmpty) {
-                        setState(() {
-                          subtasks.add(subtaskController.text);
-                          subtaskController.clear();
-                        });
-                      }
-                    },
-                  ),
-                ],
-              ),
-              
-              if (subtasks.isNotEmpty)
-                Container(
-                  margin: const EdgeInsets.only(top: 12),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: subtasks.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      String subtask = entry.value;
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                        dense: true,
-                        title: Text(subtask),
-                        leading: const Icon(Icons.check_box_outline_blank, size: 20),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.close, size: 20),
-                          onPressed: () {
-                            setState(() {
-                              subtasks.removeAt(index);
-                            });
-                          },
+                    const SizedBox(height: 24),
+                    // Öncelik seçimi
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Öncelik',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24
+                          ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-            ],
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Kategoriler
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Kategoriler',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  ...predefinedCategories.map((category) {
-                    final isSelected = selectedCategories.contains(category);
-                    return FilterChip(
-                      label: Text(category, style: theme.textTheme.bodySmall),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            selectedCategories.add(category);
-                          } else {
-                            selectedCategories.remove(category);
-                          }
-                        });
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton(
+                              onPressed: () => setState(() => _selectedPriority = 0),
+                              style: TextButton.styleFrom(
+                                backgroundColor: _selectedPriority == 0 ? Colors.blue.withOpacity(0.2) : null,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(
+                                    color: _selectedPriority == 0 ? Colors.blue : Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                              child: const Text('Düşük', style: TextStyle(color: Colors.green, fontSize: 18),),
+                            ),
+                            TextButton(
+                              onPressed: () => setState(() => _selectedPriority = 1),
+                              style: TextButton.styleFrom(
+                                backgroundColor: _selectedPriority == 1 ? Colors.blue.withOpacity(0.2) : null,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(
+                                    color: _selectedPriority == 1 ? Colors.blue : Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                              child: const Text('Orta', style: TextStyle(color: Colors.orange, fontSize: 18),),
+                            ),
+                            TextButton(
+                              onPressed: () => setState(() => _selectedPriority = 2),
+                              style: TextButton.styleFrom(
+                                backgroundColor: _selectedPriority == 2 ? Colors.blue.withOpacity(0.2) : null,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(
+                                    color: _selectedPriority == 2 ? Colors.blue : Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                              child: const Text('Yüksek', style: TextStyle(color: Colors.red, fontSize: 18),),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Alt görevler
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Alt Görevler',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _subtaskController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Alt görev ekle',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () {
+                                if (_subtaskController.text.isNotEmpty) {
+                                  setState(() {
+                                    _subtasks.add(_subtaskController.text);
+                                    _subtaskController.clear();
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        if (_subtasks.isNotEmpty)
+                          Container(
+                            margin: const EdgeInsets.only(top: 12),
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: _subtasks.asMap().entries.map((entry) {
+                                int index = entry.key;
+                                String subtask = entry.value;
+                                return ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                  dense: true,
+                                  title: Text(subtask),
+                                  leading: IconTheme(data: theme.iconTheme, child: Icon(Icons.linear_scale_sharp, size: 20,)), //IN FUTURE Make this part re-orderable too
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.close, size: 20),
+                                    onPressed: () {
+                                      setState(() {
+                                        _subtasks.removeAt(index);
+                                      });
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Kategoriler
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Kategoriler',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            ..._predefinedCategories.map((category) {
+                              final isSelected = _selectedCategories.contains(category);
+                              return FilterChip(
+                                label: Text(category, style: theme.textTheme.bodySmall),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedCategories.add(category);
+                                    } else {
+                                      _selectedCategories.remove(category);
+                                    }
+                                  });
+                                },
+                                selectedColor: Colors.blue.withOpacity(0.2),
+                                showCheckmark: false,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(
+                                    color: isSelected ? Colors.blue : Colors.grey,
+                                  ),
+                                ),
+                              );
+                            }),
+                            ..._selectedCategories
+                                .where((cat) => !_predefinedCategories.contains(cat))
+                                .map((category) {
+                              return InputChip(
+                                label: Text(category),
+                                onDeleted: () {
+                                  setState(() {
+                                    _selectedCategories.remove(category);
+                                  });
+                                },
+                                backgroundColor: Colors.blue.withOpacity(0.2),
+                                deleteIconColor: Colors.blue,
+                              );
+                            }),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    // Ekle butonu
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_textController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Lütfen görev ismi giriniz')),
+                          );
+                        } else {
+                          todoCubit.addTodo(
+                            _textController.text,
+                            _selectedPriority,
+                            categories: _selectedCategories.isNotEmpty 
+                                ? _selectedCategories.toList() 
+                                : null,
+                            subtaskTexts: _subtasks.isNotEmpty
+                                ? _subtasks
+                                : null,
+                          );
+                          Navigator.of(context).pop();
+                        }
                       },
-                      selectedColor: Colors.blue.withOpacity(0.2),
-                      showCheckmark: false,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(
-                          color: isSelected ? Colors.blue : Colors.grey,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                    );
-                  }),
-                  
-                  ...selectedCategories
-                      .where((cat) => !predefinedCategories.contains(cat))
-                      .map((category) {
-                    return InputChip(
-                      label: Text(category),
-                      onDeleted: () {
-                        setState(() {
-                          selectedCategories.remove(category);
-                        });
-                      },
-                      backgroundColor: Colors.blue.withOpacity(0.2),
-                      deleteIconColor: Colors.blue,
-                    );
-                  }),
-                ],
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Ekle butonu
-          ElevatedButton(
-            onPressed: () {
-              if (textController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Lütfen görev ismi giriniz')),
-                );
-              } else {
-                todoCubit.addTodo(
-                  textController.text,
-                  selectedPriority,
-                  categories: selectedCategories.isNotEmpty 
-                      ? selectedCategories.toList() 
-                      : null,
-                  subtaskTexts: subtasks.isNotEmpty
-                      ? subtasks
-                      : null,
-                );
-                Navigator.of(context).pop();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                      child: Center(child: Text('TO-DO Ekle', style: theme.textTheme.bodySmall,)),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
               ),
             ),
-            child: const Text('Görevi Ekle'),
-          ),
-        ],
+            // AI promptu en alta sabitle
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: theme.scaffoldBackgroundColor,
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: BlocBuilder<AiTodoBloc, AiTodoState>(
+                  builder: (context, state) {
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _aiPromptController,
+                            decoration: InputDecoration(
+                              hintText: 'AI\'ya Ne Yapmak İstediğinizi Anlatın',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              fillColor: theme.colorScheme.surface,
+                              suffixIcon: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                child: ElevatedButton.icon(
+                                  onPressed: state is AiTodoLoading ? null : _generateTodoWithAI,
+                                  icon: state is AiTodoLoading 
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      )
+                                    : IconTheme(data:theme.iconTheme, child: const Icon(Icons.auto_awesome)),
+                                  label: Text(
+                                    '',
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),     
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

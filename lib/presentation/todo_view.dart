@@ -195,7 +195,7 @@ class _TodoViewState extends State<TodoView> {
   Widget _buildTodoCard(BuildContext context, Todo todo, TodoCubit todoCubit) {
     final theme = Theme.of(context);
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
