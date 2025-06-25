@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../themes/light_theme.dart';
 import '../themes/dark_theme.dart';
+import '../themes/neon_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum AppTheme { light, dark }
+enum AppTheme { light, dark, neon }
 
 class ThemeState {
   final AppTheme appTheme;
@@ -16,13 +17,18 @@ class ThemeCubit extends Cubit<ThemeState> {
   ThemeCubit(AppTheme initialTheme)
       : super(ThemeState(
           appTheme: initialTheme,
-          themeData: initialTheme == AppTheme.light ? lightTheme : darkTheme,
+          themeData: initialTheme == AppTheme.light
+              ? lightTheme
+              : initialTheme == AppTheme.neon
+                  ? neonTheme
+                  : darkTheme,
         ));
 
   static Future<AppTheme> getInitialTheme() async {
     final prefs = await SharedPreferences.getInstance();
     final themeString = prefs.getString('app_theme');
     if (themeString == 'light') return AppTheme.light;
+    if (themeString == 'neon') return AppTheme.neon;
     return AppTheme.dark;
   }
 
@@ -34,10 +40,18 @@ class ThemeCubit extends Cubit<ThemeState> {
       case AppTheme.dark:
         emit(ThemeState(appTheme: appTheme, themeData: darkTheme));
         break;
+      case AppTheme.neon:
+        emit(ThemeState(appTheme: appTheme, themeData: neonTheme));
+        break;
     }
     if (save) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('app_theme', appTheme == AppTheme.light ? 'light' : 'dark');
+      String themeStr = appTheme == AppTheme.light
+          ? 'light'
+          : appTheme == AppTheme.neon
+              ? 'neon'
+              : 'dark';
+      await prefs.setString('app_theme', themeStr);
     }
   }
 } 

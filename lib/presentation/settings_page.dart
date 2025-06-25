@@ -33,6 +33,10 @@ class SettingsPage extends StatelessWidget {
                       value: AppTheme.dark,
                       child: Text('Koyu Tema', style: theme.textTheme.bodyLarge,),
                     ),
+                    DropdownMenuItem(
+                      value: AppTheme.neon,
+                      child: Text('Neon Tema', style: theme.textTheme.bodyLarge),
+                    ),
                   ],
                   onChanged: (AppTheme? newTheme) async {
                     if (newTheme != null) {
