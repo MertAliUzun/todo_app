@@ -33,6 +33,26 @@ class Todo {
   Todo stateToDone () {
     return Todo(id: id, text: text, completionState: 'done', createdAt: createdAt ?? DateTime.now(), priority: priority, categories: categories, subtasks: subtasks);
   }
+
+  Todo copyWith({
+    int? id,
+    String? text,
+    String? completionState,
+    DateTime? createdAt,
+    int? priority,
+    List<String>? categories,
+    List<Subtask>? subtasks,
+  }) {
+    return Todo(
+      id: id ?? this.id,
+      text: text ?? this.text,
+      completionState: completionState ?? this.completionState,
+      createdAt: createdAt ?? this.createdAt,
+      priority: priority ?? this.priority,
+      categories: categories ?? this.categories,
+      subtasks: subtasks ?? this.subtasks,
+    );
+  }
 }
 
 // Todo model'i için extension metotlar

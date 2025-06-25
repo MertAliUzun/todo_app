@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_app/domain/models/todo.dart';
 import 'package:todo_app/domain/models/subtask.dart';
 import 'package:todo_app/presentation/todo_cubit.dart';
+import '../edit_todo_page.dart';
 
 class ExpandableTodoTile extends StatelessWidget {
   final Todo todo;
@@ -83,11 +84,27 @@ class ExpandableTodoTile extends StatelessWidget {
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: Container(
-              child: Icon(
-                Icons.drag_indicator,
-                color: theme.iconTheme.color?.withOpacity(0.5),
-                size: 35,
-              ),
+              child: isExpanded
+                  ? IconButton(
+                      icon: Icon(Icons.edit, color: theme.iconTheme.color, size: 28),
+                      tooltip: 'Düzenle',
+                      onPressed: () async {
+                        // Edit ekranına yönlendir
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => EditTodoPage(
+                              todo: todo,
+                              todoCubit: todoCubit,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Icon(
+                      Icons.drag_indicator,
+                      color: theme.iconTheme.color?.withOpacity(0.5),
+                      size: 35,
+                    ),
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

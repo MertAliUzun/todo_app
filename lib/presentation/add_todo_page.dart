@@ -424,7 +424,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Center(child: Text('TO-DO Ekle', style: theme.textTheme.bodySmall,)),
+                      child: Center(child: Text('TO-DO Ekle', style: theme.textTheme.titleMedium,)),
                     ),
                     const SizedBox(height: 32),
                   ],
@@ -447,7 +447,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                           child: TextField(
                             controller: _aiPromptController,
                             decoration: InputDecoration(
-                              hintText: 'AI\'ya Ne Yapmak İstediğinizi Anlatın',
+                              hintText: 'AI\'ya Ne Yapmak İstediğinizi Anlatın', hintStyle: TextStyle(fontSize: 14),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

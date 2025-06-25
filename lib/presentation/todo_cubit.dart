@@ -239,4 +239,32 @@ class TodoCubit extends Cubit<List<Todo>> {
     
     return categories.toList()..sort();
   }
+
+  Future<void> editTodo(Todo updatedTodo, {List<String>? newSubtaskTexts}) async {
+    // Eğer yeni subtasklar eklenmişse, mevcut subtasks'a ekle
+    List<Subtask>? updatedSubtasks = updatedTodo.subtasks != null ? List<Subtask>.from(updatedTodo.subtasks!) : [];
+    if (newSubtaskTexts != null && newSubtaskTexts.isNotEmpty) {
+      int maxOrder = updatedSubtasks.isNotEmpty ? updatedSubtasks.map((s) => s.orderNo).reduce((a, b) => a > b ? a : b) : 0;
+      for (int i = 0; i < newSubtaskTexts.length; i++) {
+        updatedSubtasks.add(Subtask(
+          id: safeIntId.getId(),
+          text: newSubtaskTexts[i],
+          isCompleted: false,
+          orderNo: maxOrder + i + 1,
+        ));
+      }
+    }
+    // Güncellenmiş todo'yu oluştur
+    final todoToUpdate = Todo(
+      id: updatedTodo.id,
+      text: updatedTodo.text,
+      completionState: updatedTodo.completionState,
+      createdAt: updatedTodo.createdAt,
+      priority: updatedTodo.priority,
+      categories: updatedTodo.categories,
+      subtasks: updatedSubtasks,
+    );
+    await todoRepo.updateTodo(todoToUpdate);
+    loadTodos();
+  }
 }
