@@ -13,29 +13,29 @@ import 'package:todo_app/presentation/services/ai_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env'); 
-  //get directory path for storing
+  await dotenv.load(fileName: '.env');
   final dir = await getApplicationDocumentsDirectory();
-  //open isar db
   final isar = await Isar.open([TodoIsarSchema], directory: dir.path);
-  //initialize repo with isar db
   final isarTodoRepo = IsarTodoRepo(isar);
 
-  //run app
-  runApp(MyApp(todoRepo: isarTodoRepo));
+  // Tema bilgisini oku
+  final initialTheme = await ThemeCubit.getInitialTheme();
+
+  runApp(MyApp(todoRepo: isarTodoRepo, initialTheme: initialTheme));
 }
 
 class MyApp extends StatelessWidget {
   final TodoRepo todoRepo;
+  final AppTheme initialTheme;
 
-  const MyApp({super.key, required this.todoRepo});
+  const MyApp({super.key, required this.todoRepo, required this.initialTheme});
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => TodoCubit(todoRepo)),
-        BlocProvider(create: (context) => ThemeCubit()..changeTheme(AppTheme.dark)),
+        BlocProvider(create: (context) => ThemeCubit(initialTheme)),
         BlocProvider(create: (context) => AiTodoBloc()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

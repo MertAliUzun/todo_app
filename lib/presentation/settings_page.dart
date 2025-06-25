@@ -34,9 +34,9 @@ class SettingsPage extends StatelessWidget {
                       child: Text('Koyu Tema', style: theme.textTheme.bodyLarge,),
                     ),
                   ],
-                  onChanged: (AppTheme? newTheme) {
+                  onChanged: (AppTheme? newTheme) async {
                     if (newTheme != null) {
-                      context.read<ThemeCubit>().changeTheme(newTheme);
+                      await context.read<ThemeCubit>().changeTheme(newTheme);
                     }
                   },
                 );
