@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_app/domain/models/todo.dart';
 import 'package:todo_app/presentation/todo_cubit.dart';
 import 'package:todo_app/presentation/todo_view.dart';
-import 'package:todo_app/presentation/settings_page.dart';
+import 'package:todo_app/presentation/widgets/app_drawer.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});
@@ -14,8 +14,6 @@ class TodoPage extends StatefulWidget {
 
 class _TodoPageState extends State<TodoPage> {
   int _selectedIndex = 0;
-  // Önceden tanımlanmış kategoriler
-  final List<String> _categories = ['None','İş', 'Okul', 'Kişisel', 'Alışveriş', 'Sağlık'];
 
   @override
   Widget build(BuildContext context) {
@@ -28,113 +26,23 @@ class _TodoPageState extends State<TodoPage> {
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      drawer: const AppDrawer(),
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         scrolledUnderElevation: 0,
-        title: Row(
-          children: [
-            BlocBuilder<TodoCubit, List<Todo>>(
-              builder: (context, _) {
-                final currentCategory = todoCubit.selectedCategory;
-                return PopupMenuButton<String?>(
-                  color: theme.colorScheme.secondaryContainer,
-                  offset: const Offset(0, 40), // Dropdown menünün konumu
-                  tooltip: 'Kategori Filtrele',
-                  onSelected: (String? category) {
-                    todoCubit.changeCategory(category);
-                  },
-                  itemBuilder: (BuildContext context) {
-                    final items = <PopupMenuEntry<String?>>[];
-                    
-                    // Önceden tanımlanmış kategorileri ekle
-                    for (final category in _categories) {
-                      items.add(
-                        PopupMenuItem<String?>(
-                          value: category,
-                          child: Center(
-                            child: Text(
-                              category,
-                              style: currentCategory == category ? theme.textTheme.bodySmall : theme.textTheme.bodyLarge
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                    
-                    return items;
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        currentCategory ?? 'None',
-                        style: const TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
+        title: BlocBuilder<TodoCubit, List<Todo>>( //IN FUTURE change this to number of todos
+          builder: (context, _) {
+            final currentCategory = todoCubit.selectedCategory;
+            return Text(
+              currentCategory ?? 'Tüm Görevler',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            );
+          },
         ),
-        centerTitle: false,
-        actions: [
-          // Sıralama butonu
-          PopupMenuButton<SortBy>(
-            color: theme.colorScheme.secondaryContainer,
-            icon: const Icon(Icons.sort),
-            offset: const Offset(0, 40), // Dropdown menünün konumu
-            tooltip: 'Sırala',
-            onSelected: (SortBy sortBy) {
-              todoCubit.changeSortCriteria(sortBy);
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<SortBy>>[
-              PopupMenuItem<SortBy>(
-                value: SortBy.name,
-                child: Row(
-                  children: [
-                    Icon(Icons.sort_by_alpha),
-                    SizedBox(width: 8),
-                    Text('İsme Göre', style: theme.textTheme.bodyLarge,),
-                  ],
-                ),
-              ),
-              PopupMenuItem<SortBy>(
-                value: SortBy.date,
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today),
-                    SizedBox(width: 8),
-                    Text('Tarihe Göre', style: theme.textTheme.bodyLarge,),
-                  ],
-                ),
-              ),
-              PopupMenuItem<SortBy>(
-                value: SortBy.priority,
-                child: Row(
-                  children: [
-                    Icon(Icons.priority_high),
-                    SizedBox(width: 8),
-                    Text('Önceliğe Göre', style: theme.textTheme.bodyLarge,),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          // Settings butonu
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: 'Ayarlar',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
-          ),
-        ],
+        centerTitle: true,
       ),
       body: TodoView(selectedIndex: _selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
