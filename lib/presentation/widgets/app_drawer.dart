@@ -4,6 +4,17 @@ import '../todo_cubit.dart';
 import '../theme_cubit.dart';
 import '../../domain/models/todo.dart';
 
+
+class TodoCategory {
+  final String name;
+  final IconData icon;
+
+  const TodoCategory({
+    required this.name,
+    required this.icon,
+  });
+}
+
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
 
@@ -13,7 +24,32 @@ class AppDrawer extends StatelessWidget {
     final todoCubit = context.read<TodoCubit>();
     
     // Önceden tanımlanmış kategoriler
-    final List<String> categories = ['None', 'İş', 'Okul', 'Kişisel', 'Alışveriş', 'Sağlık'];
+    final List<TodoCategory> categories = [
+      TodoCategory(
+        name: 'None',
+        icon: Icons.category_outlined,
+      ),
+      TodoCategory(
+        name: 'İş',
+        icon: Icons.work_outline,
+      ),
+      TodoCategory(
+        name: 'Okul',
+        icon: Icons.school_outlined,
+      ),
+      TodoCategory(
+        name: 'Kişisel',
+        icon: Icons.person_outline,
+      ),
+      TodoCategory(
+        name: 'Alışveriş',
+        icon: Icons.shopping_cart_outlined,
+      ),
+      TodoCategory(
+        name: 'Sağlık',
+        icon: Icons.health_and_safety_outlined,
+      ),
+    ];
 
     return Drawer(
       child: Container(
@@ -27,7 +63,7 @@ class AppDrawer extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     theme.colorScheme.primary,
-                    theme.colorScheme.primary.withOpacity(0.8),
+                    theme.colorScheme.primary.withOpacity(0.2),
                   ],
                 ),
               ),
@@ -69,14 +105,23 @@ class AppDrawer extends StatelessWidget {
                       value: currentCategory,
                       isExpanded: true,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      dropdownColor: theme.colorScheme.secondaryContainer,
-                      items: categories.map((String category) {
+                      dropdownColor: theme.colorScheme.onSecondaryContainer,
+                      items: categories.map((TodoCategory category) {
                         return DropdownMenuItem<String?>(
-                          value: category,
-                          child: Text(
-                            category,
-                            style: theme.textTheme.bodyLarge,
-                          ),
+                          value: category.name,
+                          child: Row(
+                            children: [
+                              Icon(
+                                category.icon,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                category.name,
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                            ],
+                          )
                         );
                       }).toList(),
                       onChanged: (String? newCategory) {
@@ -107,7 +152,7 @@ class AppDrawer extends StatelessWidget {
                       value: currentSort,
                       isExpanded: true,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      dropdownColor: theme.colorScheme.secondaryContainer,
+                      dropdownColor: theme.colorScheme.onSecondaryContainer,
                       items: [
                         DropdownMenuItem<SortBy>(
                           value: SortBy.name,
@@ -169,7 +214,7 @@ class AppDrawer extends StatelessWidget {
                       value: themeState.appTheme,
                       isExpanded: true,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      dropdownColor: theme.colorScheme.secondaryContainer,
+                      dropdownColor: theme.colorScheme.onSecondaryContainer,
                       items: [
                         DropdownMenuItem<AppTheme>(
                           value: AppTheme.light,
@@ -201,6 +246,16 @@ class AppDrawer extends StatelessWidget {
                             ],
                           ),
                         ),
+                        DropdownMenuItem<AppTheme>(
+                          value: AppTheme.space,
+                          child: Row(
+                            children: [
+                              Icon(Icons.snapchat_rounded, size: 20),
+                              const SizedBox(width: 8),
+                              Text('Uzay Tema', style: theme.textTheme.bodyLarge),
+                            ],
+                          ),
+                        ),
                       ],
                       onChanged: (AppTheme? newTheme) async {
                         if (newTheme != null) {
@@ -229,8 +284,7 @@ class AppDrawer extends StatelessWidget {
         title,
         style: TextStyle(
           fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: theme.colorScheme.primary,
+          color: theme.colorScheme.onPrimary,
         ),
       ),
     );

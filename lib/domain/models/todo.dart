@@ -58,16 +58,16 @@ class Todo {
 // Todo model'i için extension metotlar
 extension TodoExtensions on Todo {
   // Önceliğe göre renk döndüren metot
-  Color getPriorityColor() {
+  Color getPriorityColor(BuildContext context) {
     switch (priority) {
       case 0:
-        return Colors.green;
+        return Theme.of(context).colorScheme.tertiary;
       case 1:
-        return Colors.orange;
+        return Theme.of(context).colorScheme.onTertiary;
       case 2:
-        return Colors.red;
+        return Theme.of(context).colorScheme.tertiaryContainer;
       default:
-        return Colors.orange;
+        return Theme.of(context).colorScheme.tertiary;
     }
   }
   
@@ -86,16 +86,16 @@ extension TodoExtensions on Todo {
   }
   
   // Öncelik ikonunu döndüren metot
-  Icon getPriorityIcon() {
+  Icon getPriorityIcon(BuildContext context) {
     switch (priority) {
       case 0:
-        return Icon(Icons.arrow_downward, color: getPriorityColor(), size: 16);
+        return Icon(Icons.arrow_downward, color: getPriorityColor(context), size: 16);
       case 1:
-        return Icon(Icons.arrow_forward, color: getPriorityColor(), size: 16);
+        return Icon(Icons.arrow_forward, color: getPriorityColor(context), size: 16);
       case 2:
-        return Icon(Icons.arrow_upward, color: getPriorityColor(), size: 16);
+        return Icon(Icons.arrow_upward, color: getPriorityColor(context), size: 16);
       default:
-        return Icon(Icons.arrow_forward, color: getPriorityColor(), size: 16);
+        return Icon(Icons.arrow_forward, color: getPriorityColor(context), size: 16);
     }
   }
 }

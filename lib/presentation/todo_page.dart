@@ -45,6 +45,8 @@ class _TodoPageState extends State<TodoPage> {
       ),
       body: TodoView(selectedIndex: _selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Theme.of(context).focusColor,
+        backgroundColor: Theme.of(context).bottomAppBarTheme.color,
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() {

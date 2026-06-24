@@ -102,7 +102,7 @@ class ExpandableTodoTile extends StatelessWidget {
                     )
                   : Icon(
                       Icons.drag_indicator,
-                      color: theme.iconTheme.color?.withOpacity(0.5),
+                      color: theme.iconTheme.color,
                       size: 35,
                     ),
             ),
@@ -123,21 +123,21 @@ class ExpandableTodoTile extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: todo.getPriorityColor().withOpacity(0.1),
+                        color: todo.getPriorityColor(context).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: todo.getPriorityColor()),
+                        border: Border.all(color: todo.getPriorityColor(context)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          todo.getPriorityIcon(),
+                          todo.getPriorityIcon(context),
                           const SizedBox(width: 4),
                           Text(
                             todo.getPriorityText(),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: todo.getPriorityColor(),
+                              color: todo.getPriorityColor(context),
                             ),
                           ),
                         ],
@@ -191,7 +191,7 @@ class ExpandableTodoTile extends StatelessWidget {
               ],
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              icon: Icon(Icons.delete_outline, color: theme.colorScheme.onPrimaryFixed),
               onPressed: () => _showDeleteConfirmationDialog(context),
               tooltip: 'Sil',
             ),
@@ -232,8 +232,7 @@ class ExpandableTodoTile extends StatelessWidget {
                     _buildReorderableSubtaskList(),
                     SizedBox(height: 16),
                   ],
-                  
-                  Text(
+                  /*Text(
                     'Detaylar:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -247,7 +246,7 @@ class ExpandableTodoTile extends StatelessWidget {
                       fontSize: 14,
                       height: 1.4,
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -336,7 +335,7 @@ class ExpandableTodoTile extends StatelessWidget {
                 child: Icon(
                   subtask.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
                   size: 20,
-                  color: subtask.isCompleted ? Colors.green : Colors.grey,
+                  color: subtask.isCompleted ? theme.focusColor : theme.disabledColor,
                 ),
               ),
               SizedBox(width: 12),
@@ -353,7 +352,7 @@ class ExpandableTodoTile extends StatelessWidget {
               Icon(
                 Icons.drag_handle,
                 size: 20,
-                color: Colors.grey[400],
+                color: theme.disabledColor,
               ),
             ],
           ),

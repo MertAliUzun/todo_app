@@ -54,7 +54,8 @@ class _TodoViewState extends State<TodoView> {
                           'Henüz görev yok',
                           style: TextStyle(
                             fontSize: 18,
-                            color: theme.hintColor,
+                            color: theme.focusColor,
+                            fontWeight: FontWeight.bold
                           ),
                         ),
                       ],
@@ -86,8 +87,8 @@ class _TodoViewState extends State<TodoView> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  todo.getPriorityColor(),
-                                  todo.getPriorityColor().withOpacity(0.7),
+                                  todo.getPriorityColor(context),
+                                  todo.getPriorityColor(context).withOpacity(0.7),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(12),

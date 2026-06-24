@@ -420,6 +420,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: theme.colorScheme.primaryContainer,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -445,32 +446,53 @@ class _AddTodoPageState extends State<AddTodoPage> {
                       children: [
                         Expanded(
                           child: TextField(
-                            controller: _aiPromptController,
+                            controller: _aiPromptController,    
                             decoration: InputDecoration(
-                              hintText: 'AI\'ya Ne Yapmak İstediğinizi Anlatın', hintStyle: TextStyle(fontSize: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                              hintText: "AI'ya Ne Yapmak İstediğinizi Anlatın",
+                              hintStyle: const TextStyle(fontSize: 14),
+                              filled: true,
                               fillColor: theme.colorScheme.surface,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 16,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
+                              ),
                               suffixIcon: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                child: ElevatedButton.icon(
-                                  onPressed: state is AiTodoLoading ? null : _generateTodoWithAI,
-                                  icon: state is AiTodoLoading 
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        )
-                                      : IconTheme(data:theme.iconTheme, child: const Icon(Icons.auto_awesome)),
-                                  label: Text(
-                                    '',
+                                padding: const EdgeInsets.only(
+                                  right: 8,
+                                ),
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 9),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: theme.colorScheme.primary.withOpacity(0.4),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
                                   ),
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                  child: IconButton(
+                                    onPressed: state is AiTodoLoading
+                                        ? null
+                                        : _generateTodoWithAI,
+                                    icon: state is AiTodoLoading
+                                        ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.auto_awesome,
+                                          ),
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),

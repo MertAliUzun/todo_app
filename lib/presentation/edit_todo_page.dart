@@ -271,6 +271,7 @@ class _EditTodoPageState extends State<EditTodoPage> {
                 onPressed: _onUpdate,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: theme.colorScheme.primaryContainer,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
